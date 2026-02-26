@@ -24,17 +24,67 @@ class Function:
         """
         Initializes a Function object with a given node ID.
         """
-        self.node_id = node_id
+        self._node_id = node_id
         # Distance between son/father of the original function in absolute
         # value
-        self.distance_from_original = 0
+        self._distance_from_original = 0
         # Function already found a consistent son (no need to expand further)
-        self.son_consistent = False
+        self._son_consistent = False
         # ['node_1', 'node_2', 'node_3']
-        self.regulators = []
+        self._regulators = []
         # {1: ['node_1', 'node_2'], 2: ['node_1', 'node_3'], 3: ['node_3']}
-        self.regulators_by_term = {}
-        self.pfh_function = None
+        self._regulators_by_term = {}
+        self._pfh_function = None
+
+    @property
+    def node_id(self) -> str:
+        """Returns the node ID of the function."""
+        return self._node_id
+
+    @property
+    def distance_from_original(self) -> int:
+        """Returns the distance from original function."""
+        return self._distance_from_original
+
+    @distance_from_original.setter
+    def distance_from_original(self, value: int):
+        self._distance_from_original = value
+
+    @property
+    def son_consistent(self) -> bool:
+        """Returns whether this function has a consistent descendant."""
+        return self._son_consistent
+
+    @son_consistent.setter
+    def son_consistent(self, value: bool):
+        self._son_consistent = value
+
+    @property
+    def regulators(self) -> List[str]:
+        """Returns the list of regulators."""
+        return self._regulators
+
+    @regulators.setter
+    def regulators(self, value: List[str]):
+        self._regulators = value
+
+    @property
+    def regulators_by_term(self) -> Dict[int, List[str]]:
+        """Returns a dictionary mapping terms to their respective regulators."""
+        return self._regulators_by_term
+
+    @regulators_by_term.setter
+    def regulators_by_term(self, value: Dict[int, List[str]]):
+        self._regulators_by_term = value
+
+    @property
+    def pfh_function(self) -> PFHFunction:
+        """Returns the PyFunctionhood function representation."""
+        return self._pfh_function
+
+    @pfh_function.setter
+    def pfh_function(self, value: PFHFunction):
+        self._pfh_function = value
 
     def get_node_id(self) -> str:
         """
@@ -164,7 +214,7 @@ class Function:
         """
         Assigns regulators to specific terms in the function.
         """
-        self.regulators_by_term = new_regulators_by_term
+        self._regulators_by_term = new_regulators_by_term
 
     def is_equal(self, other) -> bool:
         """

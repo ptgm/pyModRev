@@ -1,10 +1,10 @@
 import unittest
-from network.inconsistency_solution import Inconsistency_Solution
-from network.repair_set import Repair_Set
+from network.inconsistency_solution import InconsistencySolution
+from network.repair_set import RepairSet
 
 class TestInconsistencySolution(unittest.TestCase):
     def setUp(self):
-        self.solution = Inconsistency_Solution()
+        self.solution = InconsistencySolution()
 
     def test_initial_values(self):
         self.assertEqual(self.solution.get_i_nodes(), {})
@@ -56,7 +56,7 @@ class TestInconsistencySolution(unittest.TestCase):
         self.assertIn("profile1", self.solution.get_i_nodes_profiles()[1])
 
     def test_compare_repairs(self):
-        other_solution = Inconsistency_Solution()
+        other_solution = InconsistencySolution()
         other_solution.n_ar_operations = 5
         self.solution.n_ar_operations = 3
         self.assertEqual(self.solution.compare_repairs(other_solution), 1)
@@ -75,7 +75,7 @@ class TestInconsistencySolution(unittest.TestCase):
         self.assertEqual(self.solution.compare_repairs(other_solution), 0)
 
     def test_add_repair_set(self):
-        repair_set = Repair_Set(1, 2, 3, 4)
+        repair_set = RepairSet(1, 2, 3, 4)
         self.solution.add_generalization(1)
         self.solution.add_repair_set(1, repair_set)
 

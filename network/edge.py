@@ -18,10 +18,40 @@ class Edge:
         """
         Initializes an edge with a start node, end node, and sign.
         """
-        self.start_node = start_node
-        self.end_node = end_node
-        self.sign = sign
-        self.fixed = False
+        self._start_node = start_node
+        self._end_node = end_node
+        self._sign = sign
+        self._fixed = False
+
+    @property
+    def start_node(self) -> Node:
+        """Returns the start node of the edge."""
+        return self._start_node
+
+    @property
+    def end_node(self) -> Node:
+        """Returns the end node of the edge."""
+        return self._end_node
+
+    @property
+    def sign(self) -> int:
+        """Returns the sign of the edge."""
+        return self._sign
+
+    @sign.setter
+    def sign(self, value: int):
+        """Sets the sign of the edge."""
+        self._sign = value
+
+    @property
+    def fixed(self) -> bool:
+        """Returns whether the edge is fixed."""
+        return self._fixed
+
+    @fixed.setter
+    def fixed(self, value: bool):
+        """Sets whether the edge is fixed."""
+        self._fixed = value
 
     def get_start_node(self) -> Node:
         """
@@ -71,3 +101,13 @@ class Edge:
         if check_sign:
             return self.sign == edge.get_sign()
         return True
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Edge):
+            return False
+        return self.start_node == other.start_node and \
+               self.end_node == other.end_node and \
+               self.sign == other.sign
+
+    def __hash__(self) -> int:
+        return hash((self.start_node, self.end_node, self.sign))

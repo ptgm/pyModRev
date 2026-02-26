@@ -8,7 +8,7 @@ checking consistency, and parsing ASP models to extract inconsistencies.
 from typing import List, Tuple
 import clingo
 from network.network import Network
-from network.inconsistency_solution import Inconsistency_Solution
+from network.inconsistency_solution import InconsistencySolution
 from updaters.updater import Updater
 
 
@@ -190,7 +190,7 @@ class ASPHelper:
 
     # @staticmethod
     # def check_consistency(network: Network, update_type: int) -> Tuple[List[
-    #         Inconsistency_Solution], int]:
+    #         InconsistencySolution], int]:
     #     """
     #     Checks the consistency of the network based on the specified update
     #     type.
@@ -202,7 +202,7 @@ class ASPHelper:
     #     return result, optimization
 
     @staticmethod
-    def check_consistency(network: Network) -> Tuple[List[Inconsistency_Solution], int]:
+    def check_consistency(network: Network) -> Tuple[List[InconsistencySolution], int]:
         """
         Checks the consistency of the network based on the specified update
         type.
@@ -213,11 +213,11 @@ class ASPHelper:
         return result, optimization
 
     @staticmethod
-    def parse_cc_model(model: clingo.Model) -> Tuple[Inconsistency_Solution, int]:
+    def parse_cc_model(model: clingo.Model) -> Tuple[InconsistencySolution, int]:
         """
         Parses a clingo model to extract inconsistency information.
         """
-        inconsistency = Inconsistency_Solution()
+        inconsistency = InconsistencySolution()
         count = 0
         for atom in model.symbols(atoms=True):
             name = atom.name

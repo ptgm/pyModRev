@@ -1,6 +1,6 @@
 import unittest
-from network.inconsistent_node import Inconsistent_Node
-from network.repair_set import Repair_Set
+from network.inconsistent_node import InconsistentNode
+from network.repair_set import RepairSet
 from network.function import Function
 from network.edge import Edge
 from network.node import Node
@@ -8,9 +8,9 @@ from pyfunctionhood.clause import Clause
 
 class TestInconsistentNode(unittest.TestCase):
     def setUp(self):
-        self.node_generalization = Inconsistent_Node('inconsistent_node_1', True)
-        self.node_particularization = Inconsistent_Node('inconsistent_node_2', False)
-        self.repair_set = Repair_Set()
+        self.node_generalization = InconsistentNode('inconsistent_node_1', True)
+        self.node_particularization = InconsistentNode('inconsistent_node_2', False)
+        self.repair_set = RepairSet()
         self.node1 = Node('node1')
         self.node2 = Node('node2')
         self.function1 = Function('function1')
@@ -45,7 +45,7 @@ class TestInconsistentNode(unittest.TestCase):
         self.assertTrue(self.node_generalization.has_topological_error())
 
     def test_add_repair_set(self):
-        self.repair_set = Repair_Set()
+        self.repair_set = RepairSet()
         self.node1 = Node('node1')
         self.node2 = Node('node2')
         self.function1 = Function('function1')
@@ -55,8 +55,8 @@ class TestInconsistentNode(unittest.TestCase):
         self.edge1 = Edge(self.node1, self.node2, 1)
         self.edge2 = Edge(self.node2, self.node1, 0)
 
-        repair_set1 = Repair_Set(1, 2, 3, 4)
-        repair_set2 = Repair_Set(1, 1, 2, 3)  # Better repair set
+        repair_set1 = RepairSet(1, 2, 3, 4)
+        repair_set2 = RepairSet(1, 1, 2, 3)  # Better repair set
 
         self.node_generalization.add_repair_set(repair_set1)
         self.assertTrue(self.node_generalization.is_repaired())
@@ -73,8 +73,8 @@ class TestInconsistentNode(unittest.TestCase):
         self.assertEqual(len(self.node_generalization.get_repair_set()), 1)
 
     def test_add_worse_repair_set(self):
-        repair_set1 = Repair_Set(1, 2, 3, 4)
-        repair_set2 = Repair_Set(1, 3, 4, 5)  # Worse repair set
+        repair_set1 = RepairSet(1, 2, 3, 4)
+        repair_set2 = RepairSet(1, 3, 4, 5)  # Worse repair set
 
         self.node_generalization.add_repair_set(repair_set1)
         self.node_generalization.add_repair_set(repair_set2)

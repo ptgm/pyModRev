@@ -1,5 +1,5 @@
 import unittest
-from network.repair_set import Repair_Set
+from network.repair_set import RepairSet
 from network.function import Function
 from network.edge import Edge
 from network.node import Node
@@ -7,7 +7,7 @@ from pyfunctionhood.clause import Clause
 
 class TestRepairSet(unittest.TestCase):
     def setUp(self):
-        self.repair_set = Repair_Set()
+        self.repair_set = RepairSet()
         self.node1 = Node('node1')
         self.node2 = Node('node2')
         self.function1 = Function('function1')
@@ -54,7 +54,7 @@ class TestRepairSet(unittest.TestCase):
         self.assertEqual(self.repair_set.get_n_add_remove_operations(), 1)
 
     def test_is_equal(self):
-        repair_set2 = Repair_Set()
+        repair_set2 = RepairSet()
 
         self.repair_set.add_repaired_function(self.function1)
         self.repair_set.add_flipped_edge(self.edge1)

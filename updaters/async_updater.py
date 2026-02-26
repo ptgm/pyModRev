@@ -5,12 +5,13 @@ additional consistency rules.
 """
 
 import clingo
+import os
 from updaters.time_series_updater import TimeSeriesUpdater
 from updaters.updater import Updater
 from network.network import Network
 from network.function import Function
-from network.inconsistency_solution import Inconsistency_Solution
-from configuration import configuration, Inconsistencies
+from network.inconsistency_solution import InconsistencySolution
+from configuration import config, Inconsistencies
 
 
 class AsyncUpdater(TimeSeriesUpdater):
@@ -26,29 +27,14 @@ class AsyncUpdater(TimeSeriesUpdater):
         (ctl) and applies additional constraints based on the provided
         configuration.
         """
-        # ctl.load(configuration['asp_cc_d_a'])
-        ctl.add('base', [], '1{update(P,T,V):vertex(V)}1 :- exp(P), time(P,T), time(P,T+1).')
-        ctl.add('base', [], 'vlabel(P,T+1,V,1) :- update(P,T,V), 1{noneNegative(P,T,V,Id):functionOr(V,Id)}, vertex(V), exp(P), not r_part(V), not topologicalerror(V), time(P,T+1).')
-        ctl.add('base', [], 'vlabel(P,T+1,V,0) :- update(P,T,V), {noneNegative(P,T,V,Id):functionOr(V,Id)}0, vertex(V), exp(P), functionOr(V,_), not r_gen(V), not topologicalerror(V), time(P,T+1).')
-        ctl.add('base', [], 'vlabel(P,T+1,V,S) :- not update(P,T,V), vlabel(P,T,V,S), time(P,T+1).')
-        ctl.add('base', [], ':- update(P,T,V), vlabel(P,T,V,S), vlabel(P,T+1,V,S).')
-        ctl.add('base', [], 'topologicalerror(V) :- time(P1,T1), time(P2,T2), T1 != T2, time(P1,T1+1), time(P2,T2+1), update(P1, T1, V), update(P2, T2, V), {vlabel(P1,T1,V1,S1) : vlabel(P2,T2,V1,S2), functionAnd(V,Id, V1), S1!=S2}0, vlabel(P1,T1+1,V,S3), vlabel(P2,T2+1,V,S4), S3 != S4, not input(V).')
-        ctl.add('base', [], 'topologicalerror(V) :- time(P1,T), time(P2,T), time(P1,T+1), time(P2,T+1), update(P1, T, V), update(P2, T, V), P1 != P2, {vlabel(P1,T,V1,S1) : vlabel(P2,T,V1,S2), S1!=S2,  functionAnd(V,Id, V1)}0, vlabel(P1,T+1,V,S3), vlabel(P2,T+1,V,S4), S3 != S4, not input(V).')
-        ctl.add('base', [], 'repair(V) :- topologicalerror(V).')
-        ctl.add('base', [], '#minimize {1@2,top,V : topologicalerror(V)}.')
-        ctl.add('base', [], '#show update/3.')
-        ctl.add('base', [], '#show topologicalerror/1.')
-        if configuration['check_consistency']:
-            ctl.add('base', [], 'inc(P,V) :- vlabel(P,T+1,V,0), update(P,T,V), 1{noneNegative(P,T,V,Id):functionOr(V,Id)}, vertex(V), exp(P), r_part(V), not topologicalerror(V), time(P,T+1).')
-            ctl.add('base', [], 'inc(P,V) :- vlabel(P,T+1,V,1), update(P,T,V), {noneNegative(P,T,V,Id):functionOr(V,Id)}0, vertex(V), exp(P), functionOr(V,_), r_gen(V), not topologicalerror(V), time(P,T+1).')
-            ctl.add('base', [], 'incT(P1,P2,V) :- time(P1,T1), time(P2,T2), T1 != T2, time(P1,T1+1), time(P2,T2+1), update(P1, T1, V), update(P2, T2, V), {vlabel(P1,T1,V1,S1) : vlabel(P2,T2,V1,S2), functionAnd(V,Id, V1), S1!=S2}0, vlabel(P1,T1+1,V,S3), vlabel(P2,T2+1,V,S4), S3 != S4, not input(V), P1 <= P2.')
-            ctl.add('base', [], 'incT(P1,P2,V) :- time(P1,T), time(P2,T), time(P1,T+1), time(P2,T+1), update(P1, T, V), update(P2, T, V), P1 < P2, {vlabel(P1,T,V1,S1) : vlabel(P2,T,V1,S2), S1!=S2, functionAnd(V,Id, V1)}0, vlabel(P1,T+1,V,S3), vlabel(P2,T+1,V,S4), S3 != S4, not input(V).')
-            ctl.add('base', [], '#show incT/3.')
+        async_lp = os.path.join(os.path.dirname(__file__), '..', 'asp_rules', 'async.lp')
+        ctl.load(async_lp)
+
 
     @staticmethod
     def is_func_consistent_with_label_with_profile(
             network: Network,
-            labeling: Inconsistency_Solution,
+            labeling: InconsistencySolution,
             function: Function,
             profile: str) -> bool:
         """
@@ -57,7 +43,7 @@ class AsyncUpdater(TimeSeriesUpdater):
         time series (i.e. multiple time points) and does not handle a
         steady-state scenario.
         """
-        if configuration["debug"]:
+        if config.debug:
             print(f"\n###DEBUG: Checking consistency of function: {function.print_function()} of node {function.get_node_id()}")
 
         profile_map = labeling.get_v_label()[profile]
@@ -101,22 +87,11 @@ class AsyncUpdater(TimeSeriesUpdater):
 
         return True
 
-    # @staticmethod
-    # def is_func_consistent_with_label(network: Network,
-    #                                   labeling: Inconsistency_Solution,
-    #                                   function: Function) -> int:
-    #     """
-    #     Checks if a function is consistent with a labeling across all profiles.
-    #     """
-    #     for profile in labeling.get_v_label():
-    #         if not AsyncUpdater.is_func_consistent_with_label_with_profile(network, labeling, function, profile):
-    #             return False
-    #     return True
 
     @staticmethod
     def n_func_inconsistent_with_label_with_profile(
             network: Network,
-            labeling: Inconsistency_Solution,
+            labeling: InconsistencySolution,
             function: Function,
             profile: str) -> int:
         """
@@ -126,7 +101,7 @@ class AsyncUpdater(TimeSeriesUpdater):
         inconsistency) based on the profile.
         """
 
-        if configuration["debug"]:
+        if config.debug:
             print(f"\n###DEBUG: Checking consistency of function: {function.print_function()} of node {function.get_node_id()}")
         result = Inconsistencies.CONSISTENT.value
         profile_map = labeling.get_v_label()[profile]
@@ -177,28 +152,3 @@ class AsyncUpdater(TimeSeriesUpdater):
             time += 1
         return result
 
-    # @staticmethod
-    # def n_func_inconsistent_with_label(
-    #         network: Network,
-    #         labeling: Inconsistency_Solution,
-    #         function: Function) -> int:
-    #     """
-    #     Checks the consistency of a function against a labeling. It verifies
-    #     each profile and returns the consistency status (consistent,
-    #     inconsistent, or double inconsistency).
-    #     """
-    #     result = Inconsistencies.CONSISTENT.value
-
-    #     # Verify for each profile
-    #     for key, _ in labeling.get_v_label().items():
-    #         ret = AsyncUpdater.n_func_inconsistent_with_label_with_profile(network, labeling, function, key)
-    #         if configuration["debug"]:
-    #             print(f"DEBUG: Consistency value: {ret} for node {function.get_node_id()} with function: {function.print_function()}")
-
-    #         if result == Inconsistencies.CONSISTENT.value:
-    #             result = ret
-    #         else:
-    #             if ret not in (result, Inconsistencies.CONSISTENT.value):
-    #                 result = Inconsistencies.DOUBLE_INC.value
-    #                 break
-    #     return result

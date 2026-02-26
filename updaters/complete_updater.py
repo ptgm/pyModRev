@@ -5,12 +5,13 @@ consistency.
 """
 
 import clingo
+import os
 from updaters.time_series_updater import TimeSeriesUpdater
 from updaters.updater import Updater
 from network.network import Network
 from network.function import Function
-from network.inconsistency_solution import Inconsistency_Solution
-from configuration import configuration, Inconsistencies
+from network.inconsistency_solution import InconsistencySolution
+from configuration import config, Inconsistencies
 
 
 class CompleteUpdater(TimeSeriesUpdater):
@@ -25,24 +26,14 @@ class CompleteUpdater(TimeSeriesUpdater):
         This method loads a configuration-defined rule set into the control
         object (ctl) and applies consistency constraints if enabled.
         """
-        ctl.add('base', [], '1{update(P,T,V):vertex(V)} :- exp(P), time(P,T), \
-                time(P,T+1).')
-        ctl.add('base', [], 'vlabel(P,T+1,V,1) :- update(P,T,V), 1{noneNegative(P,T,V,Id):functionOr(V,Id)}, vertex(V), exp(P), not r_part(V), time(P,T+1).')
-        ctl.add('base', [], 'vlabel(P,T+1,V,0) :- update(P,T,V), {noneNegative(P,T,V,Id):functionOr(V,Id)}0, vertex(V), exp(P), functionOr(V,_), not r_gen(V), time(P,T+1).')
-        ctl.add('base', [], 'vlabel(P,T+1,V,S) :- not update(P,T,V), vlabel(P,T,V,S), time(P,T+1).')
-        ctl.add('base', [], '#show update/3.')
-        if configuration['check_consistency']:
-            ctl.add('base', [], 'inc(P,V) :- vlabel(P,T+1,V,0), update(P,T,V),\
-                     1{noneNegative(P,T,V,Id):functionOr(V,Id)}, vertex(V), \
-                    exp(P), r_part(V), time(P,T+1).')
-            ctl.add('base', [], 'inc(P,V) :- vlabel(P,T+1,V,1), update(P,T,V),\
-                     {noneNegative(P,T,V,Id):functionOr(V,Id)}0, vertex(V), \
-                    exp(P), functionOr(V,_), r_gen(V), time(P,T+1).')
+        complete_lp = os.path.join(os.path.dirname(__file__), '..', 'asp_rules', 'complete.lp')
+        ctl.load(complete_lp)
+
 
     @staticmethod
     def is_func_consistent_with_label_with_profile(
             network: Network,
-            labeling: Inconsistency_Solution,
+            labeling: InconsistencySolution,
             function: Function,
             profile: str) -> bool:
         """
@@ -51,7 +42,7 @@ class CompleteUpdater(TimeSeriesUpdater):
         time series (i.e. multiple time points) and does not handle a
         steady-state scenario.
         """
-        if configuration["debug"]:
+        if config.debug:
             print(f"\n###DEBUG: Checking consistency of function: {function.print_function()} of node {function.get_node_id()}")
 
         profile_map = labeling.get_v_label()[profile]
@@ -94,22 +85,11 @@ class CompleteUpdater(TimeSeriesUpdater):
             time += 1
         return True
 
-    # @staticmethod
-    # def is_func_consistent_with_label(network: Network,
-    #                                   labeling: Inconsistency_Solution,
-    #                                   function: Function) -> int:
-    #     """
-    #     Checks if a function is consistent with a labeling across all profiles.
-    #     """
-    #     for profile in labeling.get_v_label():
-    #         if not CompleteUpdater.is_func_consistent_with_label_with_profile(network, labeling, function, profile):
-    #             return False
-    #     return True
 
     @staticmethod
     def n_func_inconsistent_with_label_with_profile(
             network: Network,
-            labeling: Inconsistency_Solution,
+            labeling: InconsistencySolution,
             function: Function,
             profile: str) -> int:
         """
@@ -119,7 +99,7 @@ class CompleteUpdater(TimeSeriesUpdater):
         inconsistency) based on the profile.
         """
 
-        if configuration["debug"]:
+        if config.debug:
             print(f"\n###DEBUG: Checking consistency of function: {function.print_function()} of node {function.get_node_id()}")
         result = Inconsistencies.CONSISTENT.value
         profile_map = labeling.get_v_label()[profile]
@@ -170,29 +150,3 @@ class CompleteUpdater(TimeSeriesUpdater):
             time += 1
         return result
 
-    # @staticmethod
-    # def n_func_inconsistent_with_label(
-    #         network: Network,
-    #         labeling: Inconsistency_Solution,
-    #         function: Function) -> int:
-    #     """
-    #     Checks the consistency of a function against a labeling. It verifies each
-    #     profile and returns the consistency status (consistent, inconsistent, or
-    #     double inconsistency).
-    #     """
-    #     result = Inconsistencies.CONSISTENT.value
-
-    #     # Verify for each profile
-    #     for key, _ in labeling.get_v_label().items():
-    #         ret = CompleteUpdater.n_func_inconsistent_with_label_with_profile(network, labeling,
-    #                                                         function, key)
-    #         if configuration["debug"]:
-    #             print(f"DEBUG: Consistency value: {ret} for node {function.get_node_id()} with function: {function.print_function()}")
-
-    #         if result == Inconsistencies.CONSISTENT.value:
-    #             result = ret
-    #         else:
-    #             if ret not in (result, Inconsistencies.CONSISTENT.value):
-    #                 result = Inconsistencies.DOUBLE_INC.value
-    #                 break
-    #     return result

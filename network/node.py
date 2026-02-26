@@ -17,8 +17,23 @@ class Node:
         """
         Initializes a node with a given identifier and a default function.
         """
-        self.id = node_id
-        self.function = Function(node_id)
+        self._identifier = node_id
+        self._function = Function(node_id)
+
+    @property
+    def identifier(self) -> str:
+        """Returns the identifier of the node."""
+        return self._identifier
+
+    @property
+    def function(self) -> Function:
+        """Returns the function associated with the node."""
+        return self._function
+
+    @function.setter
+    def function(self, value: Function):
+        """Sets the function associated with the node."""
+        self._function = value
 
     def add_function(self, function: Function) -> None:
         """
@@ -36,4 +51,4 @@ class Node:
         """
         Returns the identifier of the node.
         """
-        return self.id
+        return self.identifier

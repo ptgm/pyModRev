@@ -8,6 +8,7 @@ properties such as input files and observations.
 from typing import Dict, List, Set
 from network.node import Node
 from network.edge import Edge
+from network.exceptions import EdgeNotFoundError
 
 
 class Network:
@@ -20,18 +21,78 @@ class Network:
         """
         Initializes an empty network with no nodes, edges, or input files.
         """
-        self.nodes = {}  # {'node_id_1': node_1, 'node_id_2': node_2, ...}
-        # self.edges = []
-        # self.graph = {} # {'node_id_1': ['node_id_2', 'node_id_3'], 'node_id_2': ['node_id_1'], ...}
-        self.graph = {}  # {'node_id_1': [edge_1_2, edge_1_3], 'node_id_2': [edge_2_1], ...}
-        self.regulators = {}  # Reverse of graph {'node_id_1': ['node_id_2'], 'node_id_2': ['node_id_1'], 'node_id_3': ['node_id_1'], ...}
-        self.input_file_network = ''
-        self.observation_files = []  # ['examples/boolean_cell_cycle/obs/ts/async/a_o3_t20.lp', 'examples/boolean_cell_cycle/obs/ss/attractors.lp']
-        self.observation_files_with_updater = []  # [('examples/fissionYeastDavidich2008/obs/ts/ssync/s_o1_t5.lp', <sync_updater.SyncUpdater object at 0x10c7bea90>)]
-        self.updaters_name = set()
-        self.updaters = set()
-        self.has_ss_obs = False
-        self.has_ts_obs = False
+        self._nodes = {}  # {'node_id_1': node_1, 'node_id_2': node_2, ...}
+        self._graph = {}  # {'node_id_1': [edge_1_2, edge_1_3], 'node_id_2': [edge_2_1], ...}
+        self._regulators = {}  # Reverse of graph {'node_id_1': ['node_id_2'], 'node_id_2': ['node_id_1'], 'node_id_3': ['node_id_1'], ...}
+        self._input_file_network = ''
+        self._observation_files = []  # ['examples/boolean_cell_cycle/obs/ts/async/a_o3_t20.lp', 'examples/boolean_cell_cycle/obs/ss/attractors.lp']
+        self._observation_files_with_updater = []  # [('examples/fissionYeastDavidich2008/obs/ts/ssync/s_o1_t5.lp', <sync_updater.SyncUpdater object at 0x10c7bea90>)]
+        self._updaters_name = set()
+        self._updaters = set()
+        self._has_ss_obs = False
+        self._has_ts_obs = False
+
+    @property
+    def nodes(self) -> Dict[str, Node]:
+        """Returns all nodes in the network."""
+        return self._nodes
+
+    @property
+    def graph(self) -> Dict[str, List[Edge]]:
+        """Returns the graph representation of the network."""
+        return self._graph
+
+    @property
+    def regulators(self) -> Dict[str, List[str]]:
+        """Returns the regulators of each node in the network."""
+        return self._regulators
+
+    @property
+    def input_file_network(self) -> str:
+        """Returns the input file associated with the network."""
+        return self._input_file_network
+
+    @input_file_network.setter
+    def input_file_network(self, value: str):
+        self._input_file_network = value
+
+    @property
+    def observation_files(self) -> List:
+        """Returns the list of observation files."""
+        return self._observation_files
+
+    @property
+    def observation_files_with_updater(self) -> List:
+        """Returns the list of observation files with their updaters."""
+        return self._observation_files_with_updater
+
+    @property
+    def updaters_name(self) -> Set:
+        """Returns the set of updater names."""
+        return self._updaters_name
+
+    @property
+    def updaters(self) -> Set:
+        """Returns the set of updater objects."""
+        return self._updaters
+
+    @property
+    def has_ss_obs(self) -> bool:
+        """Returns whether the network has steady-state observations."""
+        return self._has_ss_obs
+
+    @has_ss_obs.setter
+    def has_ss_obs(self, value: bool):
+        self._has_ss_obs = value
+
+    @property
+    def has_ts_obs(self) -> bool:
+        """Returns whether the network has time-series observations."""
+        return self._has_ts_obs
+
+    @has_ts_obs.setter
+    def has_ts_obs(self, value: bool):
+        self._has_ts_obs = value
 
     def get_updaters(self) -> Set:
         return self.updaters
@@ -49,10 +110,7 @@ class Network:
         """
         Retrieves a node from the network by its identifier.
         """
-        node = None
-        if node_id in self.nodes:
-            node = self.nodes[node_id]
-        return node
+        return self.nodes.get(node_id)
 
     def get_nodes(self) -> Dict[str, Node]:
         """
@@ -64,14 +122,11 @@ class Network:
         """
         Retrieves an edge between two nodes by their identifiers.
         """
-        # for edge in self.edges:
-        #     if edge.get_start_node().get_id() == start_node_id \
-        #             and edge.get_end_node().get_id() == end_node_id:
-        #         return edge
-        for edge in self.graph[start_node_id]:
-            if edge.get_end_node().get_id() == end_node_id:
-                return edge
-        raise ValueError('Edge does not exist!')
+        if start_node_id in self.graph:
+            for edge in self.graph[start_node_id]:
+                if edge.get_end_node().get_id() == end_node_id:
+                    return edge
+        raise EdgeNotFoundError(f"Edge from {start_node_id} to {end_node_id} does not exist!")
 
     def get_graph(self) -> Dict[str, List[Edge]]:
         """
@@ -84,9 +139,6 @@ class Network:
         Returns the regulators of each node in the network.
         """
         return self.regulators
-
-    # def get_edges(self) -> List[Edge]:
-    #     return self.edges
 
     def get_input_file_network(self) -> str:
         """
@@ -135,7 +187,7 @@ class Network:
         """
         try:
             return self.get_edge(start_node.get_id(), end_node.get_id())
-        except ValueError:
+        except EdgeNotFoundError:
             edge = Edge(start_node, end_node, sign)
             # self.edges.append(edge)
             self.graph[edge.get_start_node().get_id()].append(edge)
@@ -173,11 +225,11 @@ class Network:
         """
         self.has_ts_obs = has_ts_obs
 
-    def set_input_file_network(self, input_file_netowrk: str) -> None:
+    def set_input_file_network(self, input_file_network: str) -> None:
         """
         Sets the input file associated with the network.
         """
-        self.input_file_network = input_file_netowrk
+        self.input_file_network = input_file_network
 
     def add_observation_file(self, observation_file: str) -> None:
         """
