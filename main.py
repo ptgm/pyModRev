@@ -7,6 +7,8 @@ operations needed to restore consistency.
 import sys
 import os
 import inspect
+import logging
+
 from importlib import util
 from typing import List, Dict
 from network.network import Network
@@ -17,6 +19,9 @@ from updaters.sync_updater import SyncUpdater
 from updaters.steady_state_updater import SteadyStateUpdater
 from updaters.complete_updater import CompleteUpdater
 from repair.engine import model_revision
+
+# Configure logger
+logger = logging.getLogger(__name__)
 
 
 def print_help() -> None:
@@ -193,6 +198,6 @@ if __name__ == '__main__':
     process_arguments(network, sys.argv)
     parse = ASPHelper.parse_network(network)
     if parse < 1 and not config.ignore_warnings:
-        print('#ABORT:\tModel definition with errors.\n\tCheck documentation for input definition details.')
+        logger.error('Model definition with errors. Check documentation for input definition details.')
         sys.exit(-1)
     model_revision(network)

@@ -7,10 +7,13 @@ checking consistency, and parsing ASP models to extract inconsistencies.
 
 from typing import List, Tuple
 import clingo
+import logging
+
 from network.network import Network
 from network.inconsistency_solution import InconsistencySolution
 from updaters.updater import Updater
 
+logger = logging.getLogger(__name__)
 
 class ASPHelper:
     """
@@ -60,24 +63,24 @@ class ASPHelper:
                                 split = split[0].split(',')
 
                                 if len(split) != 3:
-                                    print(f'WARN!\tEdge not recognized in line {str(count_line)}: {predicates[i]}')
+                                    logger.warning(f'WARN!\tEdge not recognized in line {str(count_line)}: {predicates[i]}')
                                     result = -1
                                     continue
 
                                 if not ASPHelper.validate_input_name(split[0]) or not ASPHelper.validate_input_name(split[1]):
-                                    print(f'WARN!\tInvalid node argument in line {str(count_line)}: {predicates[i]}')
-                                    print('\t\tNodes names must start with a lower case letter, a digit, or be surrounded by quotation marks.')
+                                    logger.warning(f'WARN!\tInvalid node argument in line {str(count_line)}: {predicates[i]}')
+                                    logger.warning('\t\tNode names must start with a lower case letter, a digit, or be surrounded by quotation marks.')
                                     return -2
 
                                 start_id, end_id = split[0], split[1]
                                 try:
                                     sign = int(split[2])
                                 except ValueError:
-                                    print(f'WARN!\tInvalid edge sign: {split[2]} on line {str(count_line)} in edge {predicates[i]}')
+                                    logger.warning(f'WARN!\tInvalid edge sign: {split[2]} on line {str(count_line)} in edge {predicates[i]}')
                                     return -2
 
                                 if sign not in [0, 1]:
-                                    print(f'WARN!\tInvalid edge sign on line {str(count_line)} in edge {predicates[i]}')
+                                    logger.warning(f'WARN!\tInvalid edge sign on line {str(count_line)} in edge {predicates[i]}')
                                     return -2
 
                                 start_node = network.add_node(start_id)
@@ -94,8 +97,8 @@ class ASPHelper:
                                     continue
 
                                 if not ASPHelper.validate_input_name(split[0]) or not ASPHelper.validate_input_name(split[1]):
-                                    print(f'WARN!\tInvalid node argument in line {count_line}: {predicates[i]}')
-                                    print('\t\tNodes names must start with a lower case letter, a digit, or be surrounded by quotation marks.')
+                                    logger.warning(f'WARN!\tInvalid node argument in line {count_line}: {predicates[i]}')
+                                    logger.warning('\t\tNodes names must start with a lower case letter, a digit, or be surrounded by quotation marks.')
                                     return -2
 
                                 start_id, end_id = split[0], split[1]
@@ -104,7 +107,7 @@ class ASPHelper:
                                 if edge is not None:
                                     edge.set_fixed()
                                 else:
-                                    print(f'WARN!\tUnrecognized edge on line {count_line}: {predicates[i]} Ignoring...')
+                                    logger.warning(f'WARN!\tUnrecognized edge on line {count_line}: {predicates[i]} Ignoring...')
                                 continue
 
                             elif split[0] == 'functionOr':
@@ -112,13 +115,13 @@ class ASPHelper:
                                 split = split[0].split(',')
 
                                 if len(split) != 2:
-                                    print(f'WARN!\tfunctionOr not recognized on line {str(count_line)}: {predicates[i]}')
+                                    logger.warning(f'WARN!\tfunctionOr not recognized on line {str(count_line)}: {predicates[i]}')
                                     result = -1
                                     continue
 
                                 if not ASPHelper.validate_input_name(split[0]):
-                                    print(f'WARN!\tInvalid node argument in line {str(count_line)}: {predicates[i]}')
-                                    print('\t\tNodes names must start with a lower case letter, a digit, or be surrounded by quotation marks.')
+                                    logger.warning(f'WARN!\tInvalid node argument in line {str(count_line)}: {predicates[i]}')
+                                    logger.warning('\t\tNodes names must start with a lower case letter, a digit, or be surrounded by quotation marks.')
                                     return -2
 
                                 network.add_node(split[0])
@@ -128,20 +131,20 @@ class ASPHelper:
                                     try:
                                         range_limit = int(split[-1])
                                     except ValueError:
-                                        print(f'WARN!\tInvalid range limit: {split[-1]} on line {count_line} in {predicates[i]}. It must be an integer greater than 0.')
+                                        logger.warning(f'WARN!\tInvalid range limit: {split[-1]} on line {count_line} in {predicates[i]}. It must be an integer greater than 0.')
                                         return -2
                                     if range_limit < 1:
-                                        print(f'WARN!\tInvalid range limit: {range_limit} on line {count_line} in {predicates[i]}. It must be an integer greater than 0.')
+                                        logger.warning(f'WARN!\tInvalid range limit: {range_limit} on line {count_line} in {predicates[i]}. It must be an integer greater than 0.')
                                         return -2
 
                                 else:
                                     try:
                                         range_limit = int(split[1])
                                         if range_limit < 1:
-                                            print(f'WARN!\tInvalid range limit: {range_limit} on line {count_line} in {predicates[i]}. It must be an integer greater than 0.')
+                                            logger.warning(f'WARN!\tInvalid range limit: {range_limit} on line {count_line} in {predicates[i]}. It must be an integer greater than 0.')
                                             return -2
                                     except ValueError:
-                                        print(f'WARN!\tInvalid functionOr range definition on line {count_line}: {predicates[i]}')
+                                        logger.warning(f'WARN!\tInvalid functionOr range definition on line {count_line}: {predicates[i]}')
                                         return -2
                                 continue
 
@@ -150,35 +153,35 @@ class ASPHelper:
                                 split = split[0].split(',')
 
                                 if len(split) != 3:
-                                    print(f'WARN!\tfunctionAnd not recognized on line {count_line}: {predicates[i]}')
+                                    logger.warning(f'WARN!\tfunctionAnd not recognized on line {count_line}: {predicates[i]}')
                                     result = -1
                                     continue
 
                                 if not ASPHelper.validate_input_name(split[0]) or not ASPHelper.validate_input_name(split[2]):
-                                    print(f'WARN!\tInvalid node argument on line {count_line}: {predicates[i]}')
-                                    print('\t\tNodes names must start with a lower case letter, a digit, or be surrounded by quotation marks.')
+                                    logger.warning(f'WARN!\tInvalid node argument on line {count_line}: {predicates[i]}')
+                                    logger.warning('\t\tNodes names must start with a lower case letter, a digit, or be surrounded by quotation marks.')
                                     return -2
 
                                 node = network.get_node(split[0])
                                 if node is None:
-                                    print(f'WARN!\tNode not recognized or not yet defined: {split[0]} on line {count_line} in {predicates[i]}')
+                                    logger.warning(f'WARN!\tNode not recognized or not yet defined: {split[0]} on line {count_line} in {predicates[i]}')
                                     result = -1
                                     continue
 
                                 node2 = network.get_node(split[2])
                                 if node2 is None:
-                                    print(f'WARN!\tNode not recognized or not yet defined: {split[2]} on line {count_line} in {predicates[i]}')
+                                    logger.warning(f'WARN!\tNode not recognized or not yet defined: {split[2]} on line {count_line} in {predicates[i]}')
                                     result = -1
                                     continue
 
                                 try:
                                     clause_id = int(split[1])
                                     if clause_id < 1:
-                                        print(f'WARN!\tInvalid clause Id: {split[1]} on line {count_line} in {predicates[i]}')
+                                        logger.warning(f'WARN!\tInvalid clause Id: {split[1]} on line {count_line} in {predicates[i]}')
                                         result = -1
                                         continue
                                 except ValueError:
-                                    print(f'WARN!\tInvalid clause Id: {split[1]} on line {count_line} in {predicates[i]}')
+                                    logger.warning(f'WARN!\tInvalid clause Id: {split[1]} on line {count_line} in {predicates[i]}')
                                     result = -1
                                     continue
                                 node.get_function().add_regulator_to_term(clause_id, split[2])
@@ -188,18 +191,6 @@ class ASPHelper:
                              network.get_input_file_network()) from exc
         return result
 
-    # @staticmethod
-    # def check_consistency(network: Network, update_type: int) -> Tuple[List[
-    #         InconsistencySolution], int]:
-    #     """
-    #     Checks the consistency of the network based on the specified update
-    #     type.
-    #     """
-    #     result = []
-    #     optimization = -2
-    #     updater = Updater.get_updater(update_type)
-    #     result, optimization = updater.check_consistency(network, update_type)
-    #     return result, optimization
 
     @staticmethod
     def check_consistency(network: Network) -> Tuple[List[InconsistencySolution], int]:
