@@ -1,31 +1,35 @@
-#!/bin/sh
+#!/bin/bash
 
-PYTHON_PATH="/usr/bin/python3"
-SCRIPT_PATH="main.py"
-NETWORK_DIR="network"
-TESTS_DIR="tests"
-
-for folder in "$NETWORK_DIR"/*; do
-    if [ -d "$folder/"$NETWORK_DIR"/tests" ]; then
-        for test in "$folder/tests"/*; do
-            echo "Running test: $test"
-            $($PYTHON_PATH -m "$folder"/"$test")
-        done
+# Loop through all subdirectories two levels deep inside 'examples/'
+for DIR in examples/*/*; do
+    # Check if it is a directory
+    if [ -d "$DIR" ]; then
+        echo "pyModRev on: $DIR"
+        
+        # Find the .lp file that is NOT model.lp to determine the $type
+        obs_file=$(ls "$DIR"/*.lp 2>/dev/null | grep -v 'model.lp$' | head -n 1)
+        
+        if [ -n "$obs_file" ]; then
+            # Extract just the filename without the path and without the .lp extension
+            filename=$(basename "$obs_file")
+            type="${filename%.lp}"
+            
+            # Run the commands specified
+            python3 main.py -m "$DIR/model.lp" -obs "$DIR/$type.lp" "${type}updater" -v 0 > tmp
+            python3 scripts/compare_outputs.py tmp "$DIR/output.txt"
+            
+            # Optional: Check if the comparison succeeded based on exit code
+            if [ $? -eq 0 ]; then
+                echo -e "[\033[32mPASS\033[0m]"
+            else
+                echo -e "[\033[31mFAIL\033[0m]"
+            fi
+            echo "----------------------------------------"
+        else
+            echo "Warning: No observation file (like steadystate.lp) found in $DIR"
+        fi
     fi
 done
 
-# python3 -m network.tests.test_edge
-# python3 -m network.tests.test_function
-# python3 -m network.tests.test_inconsistency_solution
-# python3 -m network.tests.test_inconsistent_node
-# python3 -m network.tests.test_network
-# python3 -m network.tests.test_node
-# python3 -m network.tests.test_repair_set
-
-# python3 -m network.tests.test_pfh_clause
-# python3 -m network.tests.test_pfh_function
-# python3 -m network.tests.test_pfh_hassediagram
-# python3 -m network.tests.test_pfh_powerset
-
-# chmod 755 run_tests.sh
-# ./run_tests.sh
+# Clean up the temporary file after all tests finish
+rm -f tmp

@@ -1,0 +1,1 @@
+e2f@F,((cyca && cycb && p27 && rb) || (cdc20 && cyca && cycb && rb) || (cdc20 && cyca && p27 && rb))
