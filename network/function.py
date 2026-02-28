@@ -216,11 +216,26 @@ class Function:
         """
         self._regulators_by_term = new_regulators_by_term
 
-    def is_equal(self, other) -> bool:
-        """
-        Compares this function with another function for equality.
-        """
-        return self.get_pfh_function() == other.get_pfh_function()
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Function):
+            return False
+        if not self.regulators and not other.regulators:
+            return True
+        if self.regulators != other.regulators:
+            return False
+
+        if self.get_pfh_function() is None:
+            self.create_pfh_function()
+        if other.get_pfh_function() is None:
+            other.create_pfh_function()
+        return self.pfh_function == other.pfh_function
+
+    def __hash__(self) -> int:
+        if not self.regulators:
+            return hash(self.node_id) # Consistent hash for empty function of this node
+        if self.get_pfh_function() is None:
+            self.create_pfh_function()
+        return hash(self.pfh_function)
 
     def compare_level(self, other) -> int:
         """

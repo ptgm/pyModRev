@@ -184,14 +184,11 @@ class RepairSet:
     def n_flip_edges_operations(self, value: int):
         self._stats['n_flip_edges_operations'] = value
 
-    def is_equal(self, other: 'RepairSet') -> bool:
-        """
-        Checks if this repair set is equal to another repair set.
-        """
-        return (
-            self.repaired_functions == other.repaired_functions and
-            self.flipped_edges == other.flipped_edges and
-            self.removed_edges == other.removed_edges and
+    def __eq__(self, other: 'RepairSet') -> bool:
+        if not isinstance(other, RepairSet):
+            return False
+        return self.repaired_functions == other.repaired_functions and \
+            self.flipped_edges == other.flipped_edges and \
+            self.removed_edges == other.removed_edges and \
             self.added_edges == other.added_edges
-        )
 

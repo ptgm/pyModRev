@@ -447,7 +447,7 @@ def search_comparable_functions(
         taux_candidates = candidate.pfh_get_replacements(generalize)
         if taux_candidates:
             for taux_candidate in taux_candidates:
-                if not is_in(taux_candidate, t_candidates):
+                if taux_candidate not in t_candidates:
                     t_candidates.append(taux_candidate)
 
         if not candidate_sol:
@@ -521,7 +521,7 @@ def search_non_comparable_functions(
         candidate = candidates.pop(0)
         is_consistent = False
 
-        if is_in(candidate, consistent_functions):
+        if candidate not in consistent_functions:
             continue
 
         inc_type = n_func_inconsistent_with_label(network, inconsistency,
@@ -596,7 +596,7 @@ def search_non_comparable_functions(
         new_candidates = candidate.get_replacements(is_generalize)
         for new_candidate in new_candidates:
             new_candidate.set_son_consistent(is_consistent)
-            if not is_in(new_candidate, candidates):
+            if new_candidate not in candidates:
                 candidates.append(new_candidate)
         if not is_consistent:
             del candidate
@@ -751,15 +751,6 @@ def is_func_consistent_with_label_with_profile(
     for updater in network.get_updaters():
         if len(labeling.get_v_label()[profile]) != 1 and updater.__class__.__name__.lower() != SteadyStateUpdater.__name__.lower():
             return updater.is_func_consistent_with_label_with_profile(network, labeling, function, profile)
-
-
-def is_in(
-        item: Function,
-        lst: List[Function]) -> bool:
-    """
-    Checks if a function is present in a list by comparing it to each element.
-    """
-    return any(item.is_equal(aux) for aux in lst)
 
 
 def check_consistency(network: Network) -> Tuple[List[InconsistencySolution], int]:

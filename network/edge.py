@@ -90,18 +90,6 @@ class Edge:
         """
         self.fixed = True
 
-    def is_equal(self, edge, check_sign: bool) -> bool:
-        """
-        Checks if this edge is equal to another edge, optionally comparing the
-        sign.
-        """
-        if self.start_node.get_id() != edge.get_start_node().get_id() or \
-                self.end_node.get_id() != edge.get_end_node().get_id():
-            return False
-        if check_sign:
-            return self.sign == edge.get_sign()
-        return True
-
     def __eq__(self, other) -> bool:
         if not isinstance(other, Edge):
             return False
