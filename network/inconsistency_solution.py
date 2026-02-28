@@ -346,7 +346,7 @@ class InconsistencySolution:
             return
         print(f"### Found solution with {self.n_repair_operations} repair operations.")
         for i_node in self.inconsistent_nodes.values():
-            print(f"\tInconsistent node {i_node.get_id()}.")
+            print(f"\tInconsistent node {i_node.identifier}.")
             i = 1
             for repair in i_node.get_repair_set():
                 if print_all:
@@ -355,11 +355,11 @@ class InconsistencySolution:
                 for repaired_function in repair.get_repaired_functions():
                     print(f"\t\t\tChange function of {repaired_function.get_node_id()} to {repaired_function.print_function()}.")
                 for flipped_edge in repair.get_flipped_edges():
-                    print(f"\t\t\tFlip sign of edge ({flipped_edge.get_start_node().get_id()},{flipped_edge.get_end_node().get_id()}).")
+                    print(f"\t\t\tFlip sign of edge ({flipped_edge.start_<node.identifier},{flipped_edge.end_node.identifier}).")
                 for removed_edge in repair.get_removed_edges():
-                    print(f"\t\t\tRemove edge ({removed_edge.get_start_node().get_id()},{removed_edge.get_end_node().get_id()}).")
+                    print(f"\t\t\tRemove edge ({removed_edge.start_node.identifier},{removed_edge.end_node.identifier}).")
                 for added_edge in repair.get_added_edges():
-                    print(f"\t\t\tAdd edge ({added_edge.get_start_node().get_id()},{added_edge.get_end_node().get_id()}) with sign {added_edge.get_sign()}.")
+                    print(f"\t\t\tAdd edge ({added_edge.start_node.identifier},{added_edge.end_node.identifier}) with sign {added_edge.sign}.")
                 if not print_all:
                     break
         if config.labelling:
@@ -385,7 +385,7 @@ class InconsistencySolution:
             if not first_node:
                 print(";" if verbose_level > 0 else "/", end="")
             first_node = False
-            print(i_node.get_id(), end="")
+            print(i_node.identifier, end="")
             print(":{" if verbose_level > 0 else "@", end="")
             first_repair = True
             for repair in i_node.get_repair_set():
@@ -399,20 +399,20 @@ class InconsistencySolution:
                     if not first:
                         print(";" if verbose_level > 0 else ":", end="")
                     first = False
-                    print(f"A:({added_edge.get_start_node().get_id()},{added_edge.get_end_node().get_id()},{added_edge.get_sign()})" if verbose_level > 0
-                          else f"A,{added_edge.get_start_node().get_id()},{added_edge.get_end_node().get_id()},{added_edge.get_sign()}", end="")
+                    print(f"A:({added_edge.start_node.identifier},{added_edge.end_node.identifier},{added_edge.sign})" if verbose_level > 0
+                          else f"A,{added_edge.start_node.identifier},{added_edge.end_node.identifier},{added_edge.sign}", end="")
                 for removed_edge in repair.get_removed_edges():
                     if not first:
                         print(";" if verbose_level > 0 else ":", end="")
                     first = False
-                    print(f"R:({removed_edge.get_start_node().get_id()},{removed_edge.get_end_node().get_id()})" if verbose_level > 0
-                          else f"R,{removed_edge.get_start_node().get_id()},{removed_edge.get_end_node().get_id()}", end="")
+                    print(f"R:({removed_edge.start_node.identifier},{removed_edge.end_node.identifier})" if verbose_level > 0
+                          else f"R,{removed_edge.start_node.identifier},{removed_edge.end_node.identifier}", end="")
                 for flipped_edge in repair.get_flipped_edges():
                     if not first:
                         print(";" if verbose_level > 0 else ":", end="")
                     first = False
-                    print(f"E:({flipped_edge.get_start_node().get_id()},{flipped_edge.get_end_node().get_id()})" if verbose_level > 0
-                          else f"E,{flipped_edge.get_start_node().get_id()},{flipped_edge.get_end_node().get_id()}", end="")
+                    print(f"E:({flipped_edge.start_node.identifier},{flipped_edge.end_node.identifier})" if verbose_level > 0
+                          else f"E,{flipped_edge.start_node.identifier},{flipped_edge.end_node.identifier}", end="")
                 for repaired_function in repair.get_repaired_functions():
                     if not first:
                         print(";" if verbose_level > 0 else ":", end="")
@@ -438,7 +438,7 @@ class InconsistencySolution:
 
         for node in self.i_nodes.values():
             node_data = {
-                "node": node.get_id(),
+                "node": node.identifier,
                 "repair_set": []
             }
             first_repair_set = True
@@ -463,20 +463,20 @@ class InconsistencySolution:
                 for flipped_edge in repair.get_flipped_edges():
                     repair_data["repairs"].append({
                         "type": "E",
-                        "value": f"({flipped_edge.get_start_node().get_id()}, {flipped_edge.get_end_node().get_id()})"
+                        "value": f"({flipped_edge.start_<node.identifier}, {flipped_edge.end_node.identifier})"
                     })
                 # Adding removed edges
                 for removed_edge in repair.get_removed_edges():
                     repair_data["repairs"].append({
                         "type": "R",
-                        "value": f"({removed_edge.get_start_node().get_id()}, {removed_edge.get_end_node().get_id()})"
+                        "value": f"({removed_edge.start_<node.identifier}, {removed_edge.end_node.identifier})"
                     })
                 # Adding added edges
                 for added_edge in repair.get_added_edges():
                     repair_data["repairs"].append({
                         "type": "A",
-                        "value": f"({added_edge.get_start_node().get_id()}, {added_edge.get_end_node().get_id()})",
-                        "sign": added_edge.get_sign()
+                        "value": f"({added_edge.start_<node.identifier}, {added_edge.end_node.identifier})",
+                        "sign": added_edge.sign
                     })
                 node_data["repair_set"].append(repair_data)
                 if not print_all:
@@ -495,7 +495,7 @@ class InconsistencySolution:
                 first = False
             else:
                 print(",", end="")
-            print(f'"{i_node.get_id().replace(chr(34), "")}"', end="")
+            print(f'"{i_node.identifier.replace(chr(34), "")}"', end="")
         print("],")
         print(f'{prefix}"profiles": [', end="")
         first = True

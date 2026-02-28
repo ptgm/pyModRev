@@ -53,30 +53,6 @@ class Edge:
         """Sets whether the edge is fixed."""
         self._fixed = value
 
-    def get_start_node(self) -> Node:
-        """
-        Returns the start node of the edge.
-        """
-        return self.start_node
-
-    def get_end_node(self) -> Node:
-        """
-        Returns the end node of the edge.
-        """
-        return self.end_node
-
-    def get_sign(self) -> int:
-        """
-        Returns the sign of the edge.
-        """
-        return self.sign
-
-    def get_fixed(self) -> bool:
-        """
-        Returns whether the edge is fixed.
-        """
-        return self.fixed
-
     def flip_sign(self) -> None:
         """
         Flips the sign of the edge (from 0 to 1 or from 1 to 0).

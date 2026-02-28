@@ -38,10 +38,10 @@ def search_comparable_functions(
     necessary edges to resolve the inconsistency.
     """
     sol_found = False
-    original_f = network.get_node(inconsistent_node.get_id()).get_function()
+    original_f = network.get_node(inconsistent_node.identifier).function
 
     if original_f is None:
-        logger.warning(f"Inconsistent node {inconsistent_node.get_id()} without regulatory function")
+        logger.warning(f"Inconsistent node {inconsistent_node.identifier} without regulatory function")
         inconsistency.set_impossibility(True)
         return False
 
@@ -71,7 +71,7 @@ def search_comparable_functions(
                 repair_set.remove_edge(edge)
             for edge in added_edges:
                 repair_set.add_edge(edge)
-            inconsistency.add_repair_set(inconsistent_node.get_id(),
+            inconsistency.add_repair_set(inconsistent_node.identifier,
                                          repair_set)
             function_repaired = True
             sol_found = True
@@ -115,7 +115,7 @@ def search_non_comparable_functions(
 
     # Each function must have a list of replacement candidates and each must
     # be tested until it works
-    original_f = network.get_node(inconsistent_node.get_id()).get_function()
+    original_f = network.get_node(inconsistent_node.identifier).function
     original_map = original_f.get_regulators_by_term()
 
     if original_f.get_n_regulators() < 2:
@@ -258,7 +258,7 @@ def search_non_comparable_functions(
                     repair_set.remove_edge(edge)
                 for edge in added_edges:
                     repair_set.add_edge(edge)
-                inconsistency.add_repair_set(inconsistent_node.get_id(),
+                inconsistency.add_repair_set(inconsistent_node.identifier,
                                              repair_set)
         else:
             for candidate in consistent_functions:
@@ -270,6 +270,6 @@ def search_non_comparable_functions(
                     repair_set.remove_edge(edge)
                 for edge in added_edges:
                     repair_set.add_edge(edge)
-                inconsistency.add_repair_set(inconsistent_node.get_id(),
+                inconsistency.add_repair_set(inconsistent_node.identifier,
                                              repair_set)
     return sol_found

@@ -115,7 +115,7 @@ class Updater(ABC):
             edge = network.get_edge(var, function.get_node_id())
             if edge is not None:
                 # The clause is unsatisfied if the edge sign contradicts the value in time_map.
-                if (edge.get_sign() > 0) == (time_map[var] == 0):
+                if (edge.sign > 0) == (time_map[var] == 0):
                     return False
             else:
                 print(f"WARN: Missing edge from {var} to {function.get_node_id()}")

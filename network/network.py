@@ -124,7 +124,7 @@ class Network:
         """
         if start_node_id in self.graph:
             for edge in self.graph[start_node_id]:
-                if edge.get_end_node().get_id() == end_node_id:
+                if edge.end_node.identifier == end_node_id:
                     return edge
         raise EdgeNotFoundError(f"Edge from {start_node_id} to {end_node_id} does not exist!")
 
@@ -186,17 +186,17 @@ class Network:
         Adds a new edge between two nodes with the specified sign.
         """
         try:
-            return self.get_edge(start_node.get_id(), end_node.get_id())
+            return self.get_edge(start_node.identifier, end_node.identifier)
         except EdgeNotFoundError:
             edge = Edge(start_node, end_node, sign)
             # self.edges.append(edge)
-            self.graph[edge.get_start_node().get_id()].append(edge)
-            if edge.get_end_node().get_id() not in self.regulators:
-                self.regulators[edge.get_end_node().get_id()] = \
-                    [edge.get_start_node().get_id()]
+            self.graph[edge.start_node.identifier].append(edge)
+            if edge.end_node.identifier not in self.regulators:
+                self.regulators[edge.end_node.identifier] = \
+                    [edge.start_node.identifier]
             else:
-                self.regulators[edge.get_end_node().get_id()].append(
-                    edge.get_start_node().get_id())
+                self.regulators[edge.end_node.identifier].append(
+                    edge.start_node.identifier)
             # return edge
 
     def remove_edge(self, start_node: Node, end_node: Node) -> None:
@@ -204,14 +204,14 @@ class Network:
         Removes an edge between two nodes from the network.
         """
         try:
-            edge_to_remove = self.get_edge(start_node.get_id(),
-                                           end_node.get_id())  # Find the edge to remove
-            self.graph[start_node.get_id()].remove(edge_to_remove)  # Remove the edge from the graph
-            self.regulators[end_node.get_id()].remove(start_node.get_id())  # Remove the start_node from the list of regulators for the end_node
-            if not self.regulators[end_node.get_id()]:  # If there are no more regulators for the end_node, remove the key from the regulators dictionary
-                del self.regulators[end_node.get_id()]
+            edge_to_remove = self.get_edge(start_node.identifier,
+                                           end_node.identifier)  # Find the edge to remove
+            self.graph[start_node.identifier].remove(edge_to_remove)  # Remove the edge from the graph
+            self.regulators[end_node.identifier].remove(start_node.identifier)  # Remove the start_node from the list of regulators for the end_node
+            if not self.regulators[end_node.identifier]:  # If there are no more regulators for the end_node, remove the key from the regulators dictionary
+                del self.regulators[end_node.identifier]
         except ValueError:
-            print(f"No edge exists between {start_node.get_id()} and {end_node.get_id()}")
+            print(f"No edge exists between {start_node.identifier} and {end_node.identifier}")
 
     def set_has_ss_obs(self, has_ss_obs: bool) -> None:
         """

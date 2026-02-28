@@ -49,8 +49,8 @@ def repair_node_consistency(
     consider 0 .. N add/remove repair operations, starting with 0 repairs of
     this type
     """
-    original_node = network.get_node(inconsistent_node.get_id())
-    original_function = original_node.get_function()
+    original_node = network.get_node(inconsistent_node.identifier)
+    original_function = original_node.function
     original_regulators = original_function.get_regulators() \
         if original_function is not None \
         else []
@@ -59,7 +59,7 @@ def repair_node_consistency(
 
     for regulator in original_regulators:
         edge = network.get_edge(regulator, original_function.get_node_id())
-        if edge is not None and not edge.get_fixed():
+        if edge is not None and not edge.fixed:
             list_edges_remove.append(edge)
 
     max_n_remove = len(list_edges_remove)
@@ -96,23 +96,23 @@ def repair_node_consistency(
 
                     # Remove and add edges
                     for edge in remove_combination:
-                        logger.debug(f"Remove edge from {edge.get_start_node().get_id()}")
-                        network.remove_edge(edge.get_start_node(),
-                                            edge.get_end_node())
+                        logger.debug(f"Remove edge from {edge.start_node.identifier}")
+                        network.remove_edge(edge.start_node,
+                                            edge.end_node)
 
                     for edge in add_combination:
-                        logger.debug(f"Add edge from {edge.get_start_node().get_id()}")
-                        network.add_edge(edge.get_start_node(),
-                                         edge.get_end_node(), edge.get_sign())
+                        logger.debug(f"Add edge from {edge.start_node.identifier}")
+                        network.add_edge(edge.start_node,
+                                         edge.end_node, edge.sign)
 
                     # If n_operations > 0, the function must be changed
                     if n_operations > 0:
-                        new_function = Function(original_node.get_id())
+                        new_function = Function(original_node.identifier)
                         clause_id = 1
 
                         for regulator in original_regulators:
                             removed = any(regulator ==
-                                          edge.get_start_node().get_id()
+                                          edge.start_node.identifier
                                           for edge in remove_combination)
                             if not removed:
                                 # TODO try using add_regulator_to_term and only when needed add the clause
@@ -123,13 +123,13 @@ def repair_node_consistency(
                         for edge in add_combination:
                             # TODO try using add_regulator_to_term and only when needed add the clause
                             new_function.add_regulator_to_term(
-                                clause_id, edge.get_start_node().get_id())
+                                clause_id, edge.start_node.identifier)
                             clause_id += 1
 
                         # TODO does this makes sense? only creating the PFH function if the new function has regulators?
                         if new_function.get_regulators():
                             new_function.create_pfh_function()
-                        original_node.add_function(new_function)
+                        original_node.function = new_function
 
                     # Test with edge flips starting with 0 edge flips
                     is_sol = repair_node_consistency_flipping_edges(
@@ -138,15 +138,15 @@ def repair_node_consistency(
 
                     # Add and remove edges for the original network
                     for edge in remove_combination:
-                        network.add_edge(edge.get_start_node(),
-                                         edge.get_end_node(), edge.get_sign())
+                        network.add_edge(edge.start_node,
+                                         edge.end_node, edge.sign)
 
                     for edge in add_combination:
-                        network.remove_edge(edge.get_start_node(),
-                                            edge.get_end_node())
+                        network.remove_edge(edge.start_node,
+                                            edge.end_node)
 
                     # Restore the original function
-                    original_node.add_function(original_function)
+                    original_node.function = original_function
 
                     if is_sol:
                         sol_found = True
@@ -157,7 +157,7 @@ def repair_node_consistency(
             break
     if not sol_found:
         inconsistency.set_impossibility(True)
-        logger.warning(f"Not possible to repair node {inconsistent_node.get_id()}")
+        logger.warning(f"Not possible to repair node {inconsistent_node.identifier}")
     return
 
 
@@ -172,15 +172,15 @@ def repair_node_consistency_flipping_edges(
     It tests different combinations of edge flips and checks if the
     inconsistency is resolved.
     """
-    function = network.get_node(inconsistent_node.get_id()).get_function()
+    function = network.get_node(inconsistent_node.identifier).function
     regulators = function.get_regulators() if function is not None else []
     list_edges = []
 
     for regulator in regulators:
         edge = network.get_edge(regulator, function.get_node_id())
-        if edge is not None and not edge.get_fixed():
+        if edge is not None and not edge.fixed:
             list_edges.append(edge)
-    logger.debug(f"Searching solution flipping edges for {inconsistent_node.get_id()}")
+    logger.debug(f"Searching solution flipping edges for {inconsistent_node.identifier}")
 
     sol_found = False
     iterations = len(list_edges)
@@ -198,7 +198,7 @@ def repair_node_consistency_flipping_edges(
             # Flip all edges
             for edge in edge_set:
                 edge.flip_sign()
-                logger.debug(f"Flip edge from {edge.get_start_node().get_id()}")
+                logger.debug(f"Flip edge from {edge.start_node.identifier}")
             is_sol = repair_node_consistency_functions(network, inconsistency,
                                                        inconsistent_node,
                                                        edge_set, added_edges,
@@ -206,7 +206,7 @@ def repair_node_consistency_flipping_edges(
             # Put network back to normal by flipping edges back
             for edge in edge_set:
                 edge.flip_sign()
-                logger.debug(f"Return flip edge from {edge.get_start_node().get_id()}")
+                logger.debug(f"Return flip edge from {edge.start_node.identifier}")
             if is_sol:
                 logger.debug("Is solution by flipping edges")
                 sol_found = True
@@ -261,7 +261,7 @@ def repair_node_consistency_functions(
     if flipped_edges or added_edges or removed_edges:
         repair_type = n_func_inconsistent_with_label(
             network, inconsistency,
-            network.get_node(inconsistent_node.get_id()).get_function())
+            network.get_node(inconsistent_node.identifier).function)
         if repair_type == Inconsistencies.CONSISTENT.value:
             logger.debug("Node consistent with only topological changes")
 
@@ -279,9 +279,9 @@ def repair_node_consistency_functions(
 
             if added_edges or removed_edges:
                 repair_set.add_repaired_function(network.get_node(
-                    inconsistent_node.get_id()).get_function())
+                    inconsistent_node.identifier).function)
 
-            inconsistency.add_repair_set(inconsistent_node.get_id(),
+            inconsistency.add_repair_set(inconsistent_node.identifier,
                                          repair_set)
             return True
     else:
@@ -291,7 +291,7 @@ def repair_node_consistency_functions(
             return False
 
     if repair_type == Inconsistencies.CONSISTENT.value:
-        logger.warning(f"Found a consistent node before expected: {inconsistent_node.get_id()}")
+        logger.warning(f"Found a consistent node before expected: {inconsistent_node.identifier}")
 
     # If a solution was already found, avoid searching for function changes
     if inconsistent_node.is_repaired():
@@ -312,7 +312,7 @@ def repair_node_consistency_functions(
             # bottom function, and it's not repairable
             return False
 
-        logger.debug(f"Searching for non-comparable functions for node {inconsistent_node.get_id()}")
+        logger.debug(f"Searching for non-comparable functions for node {inconsistent_node.identifier}")
 
         # Case of double inconsistency
         sol_found = search_non_comparable_functions(network, inconsistency,
@@ -320,16 +320,16 @@ def repair_node_consistency_functions(
                                                     flipped_edges, added_edges,
                                                     removed_edges)
 
-        logger.debug(f"End searching for non-comparable functions for node {inconsistent_node.get_id()}")
+        logger.debug(f"End searching for non-comparable functions for node {inconsistent_node.identifier}")
 
     else:
-        logger.debug(f"Searching for comparable functions for node {inconsistent_node.get_id()}")
+        logger.debug(f"Searching for comparable functions for node {inconsistent_node.identifier}")
 
         # Case of single inconsistency
         sol_found = search_comparable_functions(
             network, inconsistency, inconsistent_node, flipped_edges,
             added_edges, removed_edges,
             repair_type == Inconsistencies.SINGLE_INC_GEN.value)
-        logger.debug(f"End searching for comparable functions for node {inconsistent_node.get_id()}")
+        logger.debug(f"End searching for comparable functions for node {inconsistent_node.identifier}")
 
     return sol_found

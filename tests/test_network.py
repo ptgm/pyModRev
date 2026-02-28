@@ -28,8 +28,8 @@ def test_add_edge(network):
     network.add_edge(node_1, node_2, 1)
     
     edge = network.get_edge('node_1', 'node_2')
-    assert edge.get_start_node() == node_1
-    assert edge.get_end_node() == node_2
+    assert edge.start_node == node_1
+    assert edge.end_node == node_2
     assert 'node_1' in network.get_regulators()['node_2']
 
 def test_get_edge_not_found(network):

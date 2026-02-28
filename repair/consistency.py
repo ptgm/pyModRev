@@ -123,7 +123,7 @@ def get_function_value(
                 edge = network.get_edge(var, function.get_node_id())
                 if edge is not None:
                     # Determine if clause is satisfiable based on edge sign
-                    if (edge.get_sign() > 0) == (input_map[var] == 0):
+                    if (edge.sign > 0) == (input_map[var] == 0):
                         is_clause_satisfiable = False
                         # Stop checking if clause is already unsatisfiable
                         break

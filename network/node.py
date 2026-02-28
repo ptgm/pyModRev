@@ -31,24 +31,6 @@ class Node:
         return self._function
 
     @function.setter
-    def function(self, value: Function):
+    def function(self, function: Function):
         """Sets the function associated with the node."""
-        self._function = value
-
-    def add_function(self, function: Function) -> None:
-        """
-        Sets or updates the function associated with the node.
-        """
-        self.function = function
-
-    def get_function(self) -> Function:
-        """
-        Returns the function associated with the node.
-        """
-        return self.function
-
-    def get_id(self) -> str:
-        """
-        Returns the identifier of the node.
-        """
-        return self.identifier
+        self._function = function

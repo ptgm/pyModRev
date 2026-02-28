@@ -184,7 +184,7 @@ class ASPHelper:
                                     logger.warning(f'WARN!\tInvalid clause Id: {split[1]} on line {count_line} in {predicates[i]}')
                                     result = -1
                                     continue
-                                node.get_function().add_regulator_to_term(clause_id, split[2])
+                                node.function.add_regulator_to_term(clause_id, split[2])
                                 continue
         except IOError as exc:
             raise ValueError('ERROR!\tCannot open file ' +
