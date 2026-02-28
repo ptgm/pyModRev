@@ -27,6 +27,12 @@ Then install the dependencies simply by:
 $ pip install -r requirements.txt
 ```
 
+To run all the tests (using the created `venv` environment)
+```
+$ venv/bin/python3 -m pytest tests/ -v
+```
+
+
 ---
 
 ### Getting Started
