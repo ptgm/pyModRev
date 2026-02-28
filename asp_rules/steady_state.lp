@@ -24,6 +24,7 @@ vlabel(P,V,0) :- {noneNegative(P,V,Id):functionOr(V,Id)}0, vertex(V), ss(P), fun
 
 #show vlabel/3.
 
+% show inconsistent nodes per experiments
 inc(P,V) :- vlabel(P,V,0), 1{noneNegative(P,V,Id):functionOr(V,Id)}, vertex(V), ss(P), r_part(V).
 inc(P,V) :- vlabel(P,V,1), {noneNegative(P,V ,Id):functionOr(V,Id)}0, vertex(V), ss(P), functionOr(V,_), r_gen(V).
 #show inc/2.
