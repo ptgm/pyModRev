@@ -6,16 +6,21 @@ for DIR in examples/*/*; do
     if [ -d "$DIR" ]; then
         echo "pyModRev on: $DIR"
         
-        # Find the .lp file that is NOT model.lp to determine the $type
-        obs_file=$(ls "$DIR"/*.lp 2>/dev/null | grep -v 'model.lp$' | head -n 1)
+        # Build arguments for all observation files in the directory
+        obs_args=()
+        for obs_file in "$DIR"/*.lp; do
+            # Check if file exists and is not model.lp
+            if [ -f "$obs_file" ] && [ "$(basename "$obs_file")" != "model.lp" ]; then
+                filename=$(basename "$obs_file")
+                base="${filename%.lp}"
+                type="${base%%_*}"
+                obs_args+=("$obs_file" "${type}updater")
+            fi
+        done
         
-        if [ -n "$obs_file" ]; then
-            # Extract just the filename without the path and without the .lp extension
-            filename=$(basename "$obs_file")
-            type="${filename%.lp}"
-            
+        if [ ${#obs_args[@]} -gt 0 ]; then
             # Run the commands specified
-            python3 main.py -m "$DIR/model.lp" -obs "$DIR/$type.lp" "${type}updater" -v 0 > tmp
+            python3 main.py -m "$DIR/model.lp" -obs "${obs_args[@]}" -v 0 > tmp
             python3 scripts/compare_outputs.py tmp "$DIR/output.txt"
             
             # Optional: Check if the comparison succeeded based on exit code
