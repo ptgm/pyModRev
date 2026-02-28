@@ -53,5 +53,5 @@ class TimeSeriesUpdater(Updater):
         function's node ID is in the updates list.
         """
         updates = labeling.get_updates()[time][profile]
-        return any(update == function.get_node_id() for update in updates)
+        return any(update == function.node_id for update in updates)
 

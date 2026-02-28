@@ -353,9 +353,9 @@ class InconsistencySolution:
                     print(f"\t\tRepair #{i}:")
                     i += 1
                 for repaired_function in repair.get_repaired_functions():
-                    print(f"\t\t\tChange function of {repaired_function.get_node_id()} to {repaired_function.print_function()}.")
+                    print(f"\t\t\tChange function of {repaired_function.node_id} to {repaired_function.print_function()}.")
                 for flipped_edge in repair.get_flipped_edges():
-                    print(f"\t\t\tFlip sign of edge ({flipped_edge.start_<node.identifier},{flipped_edge.end_node.identifier}).")
+                    print(f"\t\t\tFlip sign of edge ({flipped_edge.start_node.identifier},{flipped_edge.end_node.identifier}).")
                 for removed_edge in repair.get_removed_edges():
                     print(f"\t\t\tRemove edge ({removed_edge.start_node.identifier},{removed_edge.end_node.identifier}).")
                 for added_edge in repair.get_added_edges():

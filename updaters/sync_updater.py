@@ -44,7 +44,7 @@ class SyncUpdater(TimeSeriesUpdater):
         clauses are satisfied at each time step. It considers both stable states
         and dynamic updates based on the profile's labeling.
         """
-        logger.debug(f"Checking consistency of function: {function.print_function()} of node {function.get_node_id()}")
+        logger.debug(f"Checking consistency of function: {function.print_function()} of node {function.node_id}")
 
         profile_map = labeling.get_v_label()[profile]
         time = 0
@@ -64,19 +64,19 @@ class SyncUpdater(TimeSeriesUpdater):
                     if Updater.is_clause_satisfiable(clause, network, time_map, function):
                         found_sat = True
                         # In a dynamic update, require a transition to a 1-label at the next time step.
-                        if profile_map[time + 1][function.get_node_id()] != 1:
+                        if profile_map[time + 1][function.node_id] != 1:
                             return False
                         break
 
             if not found_sat:
                 if n_clauses == 0:
                     if last_val < 0:
-                        last_val = time_map[function.get_node_id()]
-                    if profile_map[time + 1][function.get_node_id()] != \
+                        last_val = time_map[function.node_id]
+                    if profile_map[time + 1][function.node_id] != \
                             last_val:
                         return False
                 else:
-                    if profile_map[time + 1][function.get_node_id()] != 0:
+                    if profile_map[time + 1][function.node_id] != 0:
                         return False
             time += 1
         return True
@@ -94,7 +94,7 @@ class SyncUpdater(TimeSeriesUpdater):
         consistency status (consistent, single inconsistency, or double
         inconsistency) based on the profile.
         """
-        logger.debug(f"Checking consistency of function: {function.print_function()} of node {function.get_node_id()}")
+        logger.debug(f"Checking consistency of function: {function.print_function()} of node {function.node_id}")
 
         result = Inconsistencies.CONSISTENT.value
         profile_map = labeling.get_v_label()[profile]
@@ -114,7 +114,7 @@ class SyncUpdater(TimeSeriesUpdater):
                 for clause in clauses:
                     if Updater.is_clause_satisfiable(clause, network, time_map, function):
                         found_sat = True
-                        if profile_map[time + 1][function.get_node_id()] != 1:
+                        if profile_map[time + 1][function.node_id] != 1:
                             if result in (Inconsistencies.CONSISTENT.value,
                                           Inconsistencies.SINGLE_INC_PART.value):
                                 result = Inconsistencies.SINGLE_INC_PART.value
@@ -124,12 +124,12 @@ class SyncUpdater(TimeSeriesUpdater):
             if not found_sat:
                 if n_clauses == 0:
                     if last_val < 0:
-                        last_val = time_map[function.get_node_id()]
-                    if profile_map[time + 1][function.get_node_id()] != \
+                        last_val = time_map[function.node_id]
+                    if profile_map[time + 1][function.node_id] != \
                             last_val:
                         return Inconsistencies.DOUBLE_INC.value
                 else:
-                    if profile_map[time + 1][function.get_node_id()] != 0:
+                    if profile_map[time + 1][function.node_id] != 0:
                         if result in (Inconsistencies.CONSISTENT.value,
                                       Inconsistencies.SINGLE_INC_GEN.value):
                             result = Inconsistencies.SINGLE_INC_GEN.value

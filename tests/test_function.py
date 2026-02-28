@@ -5,7 +5,7 @@ from network.function import Function
 
 def test_function_initialization():
     func = Function('node_1')
-    assert func.get_node_id() == 'node_1'
+    assert func.node_id == 'node_1'
     assert func.get_distance_from_original() == 0
     assert not func.get_son_consistent()
     assert func.get_regulators() == []

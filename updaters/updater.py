@@ -112,13 +112,13 @@ class Updater(ABC):
         """
         regulators = function.bitarray_to_regulators(clause)
         for var in regulators:
-            edge = network.get_edge(var, function.get_node_id())
+            edge = network.get_edge(var, function.node_id)
             if edge is not None:
                 # The clause is unsatisfied if the edge sign contradicts the value in time_map.
                 if (edge.sign > 0) == (time_map[var] == 0):
                     return False
             else:
-                print(f"WARN: Missing edge from {var} to {function.get_node_id()}")
+                print(f"WARN: Missing edge from {var} to {function.node_id}")
                 return False
         return True
 

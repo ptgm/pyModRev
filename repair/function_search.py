@@ -125,7 +125,7 @@ def search_non_comparable_functions(
 
     # Construction of new function to start search
     # TODO is missing the copy of the other attributes, might lead to error
-    new_f = Function(original_f.get_node_id())
+    new_f = Function(original_f.node_id)
 
     # If the function is in the lower half of the Hasse diagram, start search
     # at the most specific function and generalize

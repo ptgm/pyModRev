@@ -46,7 +46,7 @@ def n_func_inconsistent_with_label(
     result = Inconsistencies.CONSISTENT.value
     for key in labeling.get_v_label():
         ret = n_func_inconsistent_with_label_with_profile(network, labeling, function, key)
-        logger.debug(f"Consistency value: {ret} for node {function.get_node_id()} with function: {function.print_function()}")
+        logger.debug(f"Consistency value: {ret} for node {function.node_id} with function: {function.print_function()}")
         if result == Inconsistencies.CONSISTENT.value:
             result = ret
         else:
@@ -120,7 +120,7 @@ def get_function_value(
             is_clause_satisfiable = True
             _vars = function.bitarray_to_regulators(clause)
             for var in _vars:
-                edge = network.get_edge(var, function.get_node_id())
+                edge = network.get_edge(var, function.node_id)
                 if edge is not None:
                     # Determine if clause is satisfiable based on edge sign
                     if (edge.sign > 0) == (input_map[var] == 0):
@@ -128,7 +128,7 @@ def get_function_value(
                         # Stop checking if clause is already unsatisfiable
                         break
                 else:
-                    logger.warning(f"Missing edge from {var} to {function.get_node_id()}")
+                    logger.warning(f"Missing edge from {var} to {function.node_id}")
                     return False
             if is_clause_satisfiable:
                 return True

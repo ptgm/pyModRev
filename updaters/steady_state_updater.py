@@ -42,7 +42,7 @@ class SteadyStateUpdater(Updater):
         expected steady-state behavior of the network. This method assumes a
         single time mapping is present in the label profile.
         """
-        logger.debug(f"Checking consistency of function: {function.print_function()} of node {function.get_node_id()}")
+        logger.debug(f"Checking consistency of function: {function.print_function()} of node {function.node_id}")
 
         profile_map = labeling.get_v_label()[profile]
 
@@ -63,9 +63,9 @@ class SteadyStateUpdater(Updater):
                 if Updater.is_clause_satisfiable(clause, network, time_map, function):
                     # In steady state, a satisfied clause means the function’s output should be 1.
                     found_sat = True
-                    return time_map[function.get_node_id()] == 1
+                    return time_map[function.node_id] == 1
         if not found_sat:
-            return n_clauses == 0 or time_map[function.get_node_id()] == 0
+            return n_clauses == 0 or time_map[function.node_id] == 0
         return True
 
 
@@ -81,7 +81,7 @@ class SteadyStateUpdater(Updater):
         consistency status (consistent, single inconsistency, or double
         inconsistency) based on the profile.
         """
-        logger.debug(f"Checking consistency of function: {function.print_function()} of node {function.get_node_id()}")
+        logger.debug(f"Checking consistency of function: {function.print_function()} of node {function.node_id}")
 
         profile_map = labeling.get_v_label()[profile]
         # For steady state, we expect exactly one time mapping
@@ -101,13 +101,13 @@ class SteadyStateUpdater(Updater):
             for clause in function.get_clauses():
                 if Updater.is_clause_satisfiable(clause, network, time_map, function):
                     found_sat = True
-                    if time_map[function.get_node_id()] == 1:
+                    if time_map[function.node_id] == 1:
                         return Inconsistencies.CONSISTENT.value
                     return Inconsistencies.SINGLE_INC_PART.value
         if not found_sat:
             if n_clauses == 0:
                 return Inconsistencies.CONSISTENT.value
-            if time_map[function.get_node_id()] == 0:
+            if time_map[function.node_id] == 0:
                 return Inconsistencies.CONSISTENT.value
             return Inconsistencies.SINGLE_INC_GEN.value
         return result

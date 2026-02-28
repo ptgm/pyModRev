@@ -86,7 +86,7 @@ class Function:
     def pfh_function(self, value: PFHFunction):
         self._pfh_function = value
 
-    def get_node_id(self) -> str:
+    def get_node_id(self) -> str: # TODO: remove
         """
         Returns the node ID of the function.
         """
@@ -442,7 +442,7 @@ class Function:
     #     result = []
     #     # FIXME do the setters make sense?
     #     for parent in parents:
-    #         function = Function(self.get_node_id())
+    #         function = Function(self.node_id)
     #         function.set_distance_from_original(
     #             self.get_distance_from_original() + 1)
     #         # FIXME does it make sense to put consistency equal to the one of
@@ -467,7 +467,7 @@ class Function:
     #     # FIXME do the setters make sense?
     #     for child in children:
     #         # TODO can/should clone_rm_add be used here?
-    #         function = Function(self.get_node_id())
+    #         function = Function(self.node_id)
     #         function.set_distance_from_original(
     #             self.get_distance_from_original() + 1)
     #         # FIXME does it make sense to put consistency equal to the one of
@@ -501,7 +501,7 @@ class Function:
         """
         Create and configure a new Function instance from Hasse element.
         """
-        new_func = Function(self.get_node_id())
+        new_func = Function(self.node_id)
         new_func.set_distance_from_original(
             self.get_distance_from_original() + 1)
         new_func.set_son_consistent(element.is_consistent())

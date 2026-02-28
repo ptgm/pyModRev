@@ -6,18 +6,18 @@ def test_node_initialization():
     node = Node('test_node')
     assert node.identifier == 'test_node'
     assert isinstance(node.function, Function)
-    assert node.function.get_node_id() == 'test_node'
+    assert node.function.node_id == 'test_node'
 
 def test_node_add_function():
     node = Node('test_node')
     func = Function('test_function')
     node.function = func
     assert node.function == func
-    assert node.function.get_node_id() == 'test_function'
+    assert node.function.node_id == 'test_function'
 
 def test_node_get_function():
     node = Node('test_node')
-    assert node.function.get_node_id() == 'test_node'
+    assert node.function.node_id == 'test_node'
     func = Function('test_function')
     node.function = func
     assert node.function == func
