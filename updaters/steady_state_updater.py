@@ -3,6 +3,7 @@ This module contains the SteadyStateUpdater class, which extends the Updater
 class to handle steady-state updates while ensuring consistency constraints.
 """
 
+import logging
 import clingo
 import os
 from updaters.updater import Updater
@@ -11,6 +12,7 @@ from network.function import Function
 from network.inconsistency_solution import InconsistencySolution
 from configuration import config, Inconsistencies
 
+logger = logging.getLogger(__name__)
 
 class SteadyStateUpdater(Updater):
     """
@@ -40,8 +42,7 @@ class SteadyStateUpdater(Updater):
         expected steady-state behavior of the network. This method assumes a
         single time mapping is present in the label profile.
         """
-        if config.debug:
-            print(f"\n###DEBUG: Checking steady-state consistency of function: {function.print_function()} of node {function.get_node_id()}")
+        logger.debug(f"Checking consistency of function: {function.print_function()} of node {function.get_node_id()}")
 
         profile_map = labeling.get_v_label()[profile]
 
@@ -80,8 +81,7 @@ class SteadyStateUpdater(Updater):
         consistency status (consistent, single inconsistency, or double
         inconsistency) based on the profile.
         """
-        if config.debug:
-            print(f"\n###DEBUG: Checking consistency of function: {function.print_function()} of node {function.get_node_id()}")
+        logger.debug(f"Checking consistency of function: {function.print_function()} of node {function.get_node_id()}")
 
         profile_map = labeling.get_v_label()[profile]
         # For steady state, we expect exactly one time mapping

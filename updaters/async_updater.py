@@ -4,6 +4,7 @@ TimeSeriesUpdater to provide asynchronous updating functionality with
 additional consistency rules.
 """
 
+import logging
 import clingo
 import os
 from updaters.time_series_updater import TimeSeriesUpdater
@@ -13,6 +14,7 @@ from network.function import Function
 from network.inconsistency_solution import InconsistencySolution
 from configuration import config, Inconsistencies
 
+logger = logging.getLogger(__name__)
 
 class AsyncUpdater(TimeSeriesUpdater):
     """
@@ -43,8 +45,7 @@ class AsyncUpdater(TimeSeriesUpdater):
         time series (i.e. multiple time points) and does not handle a
         steady-state scenario.
         """
-        if config.debug:
-            print(f"\n###DEBUG: Checking consistency of function: {function.print_function()} of node {function.get_node_id()}")
+        logger.debug(f"Checking consistency of function: {function.print_function()} of node {function.get_node_id()}")
 
         profile_map = labeling.get_v_label()[profile]
         time = 0
@@ -101,8 +102,7 @@ class AsyncUpdater(TimeSeriesUpdater):
         inconsistency) based on the profile.
         """
 
-        if config.debug:
-            print(f"\n###DEBUG: Checking consistency of function: {function.print_function()} of node {function.get_node_id()}")
+        logger.debug(f"Checking consistency of function: {function.print_function()} of node {function.get_node_id()}")
         result = Inconsistencies.CONSISTENT.value
         profile_map = labeling.get_v_label()[profile]
         time = 0

@@ -3,6 +3,7 @@ This module contains the SyncUpdater class, which extends the TimeSeriesUpdater
 to handle synchronous updates with consistency checks.
 """
 
+import logging
 import clingo
 import os
 from updaters.time_series_updater import TimeSeriesUpdater
@@ -12,6 +13,7 @@ from network.function import Function
 from network.inconsistency_solution import InconsistencySolution
 from configuration import config, Inconsistencies
 
+logger = logging.getLogger(__name__)
 
 class SyncUpdater(TimeSeriesUpdater):
     """
@@ -42,8 +44,7 @@ class SyncUpdater(TimeSeriesUpdater):
         clauses are satisfied at each time step. It considers both stable states
         and dynamic updates based on the profile's labeling.
         """
-        if config.debug:
-            print(f"\n###DEBUG: Checking consistency of function: {function.print_function()} of node {function.get_node_id()}")
+        logger.debug(f"Checking consistency of function: {function.print_function()} of node {function.get_node_id()}")
 
         profile_map = labeling.get_v_label()[profile]
         time = 0
@@ -93,8 +94,7 @@ class SyncUpdater(TimeSeriesUpdater):
         consistency status (consistent, single inconsistency, or double
         inconsistency) based on the profile.
         """
-        if config.debug:
-            print(f"\n###DEBUG: Checking consistency of function: {function.print_function()} of node {function.get_node_id()}")
+        logger.debug(f"Checking consistency of function: {function.print_function()} of node {function.get_node_id()}")
 
         result = Inconsistencies.CONSISTENT.value
         profile_map = labeling.get_v_label()[profile]

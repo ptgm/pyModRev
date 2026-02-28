@@ -15,7 +15,6 @@ from network.function import Function
 from network.inconsistency_solution import InconsistencySolution
 from configuration import config
 
-
 class Updater(ABC):
     """
     The Updater class is the base class for all update-related logic. It

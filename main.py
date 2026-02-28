@@ -54,7 +54,10 @@ def process_arguments(network: Network) -> None:
     config.verbose = args.verbose
     config.debug = args.debug
 
-    # Process observations and updaters
+    # Activate debug mode
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG, format='%(name)s - %(levelname)s: %(message)s')
+    
     obs_args = args.observations
     if len(obs_args) % 2 != 0:
         parser.error("Expected an even number of arguments for --observations (pairs of obs_file and updater_name)")
@@ -98,7 +101,7 @@ def process_arguments(network: Network) -> None:
                         break
             
             if not found_updater:
-                 raise ValueError(f"Updater '{updater_name}' not found in updaters directory.")
+                raise Exception(f"Updater '{updater_name}' not found in updaters directory")
 
         except Exception as e:
             parser.error(str(e))
@@ -121,5 +124,5 @@ if __name__ == '__main__':
     parse = ASPHelper.parse_network(network)
     if parse < 1 and not config.ignore_warnings:
         logger.error('Model definition with errors. Check documentation for input definition details.')
-        sys.exit(-1)
-    model_revision(network)
+    else:
+        model_revision(network)
