@@ -1,4 +1,4 @@
-## pyModRev: A Python Tool for Model Revision in Boolean Networks
+## pyModRev: A Python Model Revision tool for Boolean logical models
 
 **pyModRev** is a Python-based reimplementation of [ModRev](https://github.com/FilipeGouveia/ModRev), a tool for automated **consistency checking** and **repair** of Boolean network models using **Answer Set Programming (ASP)**. Given a Boolean model and a set of experimental observations (steady-state or time-series), pyModRev determines whether the model explains the data. If inconsistencies are found, it identifies **minimal repair operations** to fix the model.
 
@@ -42,3 +42,9 @@ To run pyModRev:
 ```bash
 $ python3 main.py -m <model_file.lp> -obs <observation.lp> <updater> [options]
 ```
+
+
+### Authors
+* Filipe Gouveia ([https://github.com/FilipeGouveia](https://github.com/FilipeGouveia))
+* Antonio Romeu ([https://github.com/antonioromeu](https://github.com/antonioromeu))
+* Pedro T. Monteiro ([https://github.com/ptgm](https://github.com/ptgm))
