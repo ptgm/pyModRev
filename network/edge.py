@@ -59,13 +59,6 @@ class Edge:
         """
         self.sign = 1 if self.sign == 0 else 0
 
-    def set_fixed(self) -> None:
-        """
-        Marks the edge as fixed meaning it cannot change when searching
-        for inconsistency solutions.
-        """
-        self.fixed = True
-
     def __eq__(self, other) -> bool:
         if not isinstance(other, Edge):
             return False

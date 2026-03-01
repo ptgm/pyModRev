@@ -6,25 +6,25 @@ from network.function import Function
 def test_function_initialization():
     func = Function('node_1')
     assert func.node_id == 'node_1'
-    assert func.get_distance_from_original() == 0
-    assert not func.get_son_consistent()
-    assert func.get_regulators() == []
-    assert func.get_regulators_by_term() == {}
+    assert func.distance_from_original == 0
+    assert not func.son_consistent
+    assert func.regulators == []
+    assert func.regulators_by_term == {}
 
 def test_add_regulator_to_term():
     func = Function('node_1')
     func.add_regulator_to_term(1, 'reg_1')
-    assert 'reg_1' in func.get_regulators()
-    assert 'reg_1' in func.get_regulators_by_term()[1]
+    assert 'reg_1' in func.regulators
+    assert 'reg_1' in func.regulators_by_term[1]
     
     func.add_regulator_to_term(2, 'reg_2')
-    assert 'reg_2' in func.get_regulators()
-    assert 'reg_2' in func.get_regulators_by_term()[2]
+    assert 'reg_2' in func.regulators
+    assert 'reg_2' in func.regulators_by_term[2]
 
     # Duplicate check
     func.add_regulator_to_term(1, 'reg_1')
-    assert len(func.get_regulators_by_term()[1]) == 1
-    assert len(func.get_regulators()) == 2
+    assert len(func.regulators_by_term[1]) == 1
+    assert len(func.regulators) == 2
 
 def test_function_equality_and_hash():
     f1 = Function("node1")
@@ -68,5 +68,5 @@ def test_pfh_integration():
     f = Function("node1")
     f.add_regulator_to_term(1, "A")
     f.create_pfh_function()
-    assert isinstance(f.get_pfh_function(), PFHFunction)
+    assert isinstance(f.pfh_function, PFHFunction)
     assert f.get_n_clauses() == 1

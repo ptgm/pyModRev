@@ -52,6 +52,6 @@ class TimeSeriesUpdater(Updater):
         given time. In a time series scenario, this method checks if the
         function's node ID is in the updates list.
         """
-        updates = labeling.get_updates()[time][profile]
+        updates = labeling.updates[time][profile]
         return any(update == function.node_id for update in updates)
 

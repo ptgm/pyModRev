@@ -47,7 +47,7 @@ def process_arguments(network: Network) -> None:
     args = parser.parse_args()
 
     # Apply arguments to config and network
-    network.set_input_file_network(args.model)
+    network.input_file_network = args.model
     config.check_consistency = args.check_consistency
     config.force_optimum = args.exhaustive_search
     config.show_solution_for_each_inconsistency = args.sub_opt
@@ -70,7 +70,7 @@ def process_arguments(network: Network) -> None:
         
         try:
             if updater_name.lower() != SteadyStateUpdater.__name__.lower():
-                network.set_has_ts_obs(True)
+                network.has_ts_obs = True
                 if updater_name.lower() == SyncUpdater.__name__.lower():
                     network.add_updater_name('SyncUpdater')
                 elif updater_name.lower() == AsyncUpdater.__name__.lower():
@@ -80,10 +80,10 @@ def process_arguments(network: Network) -> None:
                 else:
                     raise Exception(f"Unknown non-steady state updater type encountered: {updater_name}")
                 
-                if len(network.get_updaters_name()) > 1:
-                    raise Exception(f"Conflicting updater types detected: {', '.join(network.get_updaters_name())} cannot coexist.")
+                if len(network.updaters_name) > 1:
+                    raise Exception(f"Conflicting updater types detected: {', '.join(network.updaters_name)} cannot coexist.")
             else:
-                network.set_has_ss_obs(True)
+                network.has_ss_obs = True
 
             updater_dir = os.path.join(os.path.dirname(__file__), "updaters")
             found_updater = False

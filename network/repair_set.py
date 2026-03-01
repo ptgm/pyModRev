@@ -33,54 +33,6 @@ class RepairSet:
             'n_flip_edges_operations': 0
         }
 
-    def get_repaired_functions(self) -> Set[Function]:
-        """
-        Returns the set of repaired functions in the repair set.
-        """
-        return self._repairs['repaired_functions']
-
-    def get_flipped_edges(self) -> Set[Edge]:
-        """
-        Returns the set of flipped edges in the repair set.
-        """
-        return self._repairs['flipped_edges']
-
-    def get_removed_edges(self) -> Set[Edge]:
-        """
-        Returns the set of removed edges in the repair set.
-        """
-        return self._repairs['removed_edges']
-
-    def get_added_edges(self) -> Set[Edge]:
-        """
-        Returns the set of added edges in the repair set.
-        """
-        return self._repairs['added_edges']
-
-    def get_n_topology_changes(self) -> int:
-        """
-        Returns the number of topology changes in the repair set.
-        """
-        return self._stats['n_topology_changes']
-
-    def get_n_repair_operations(self) -> int:
-        """
-        Returns the total number of repair operations in the repair set.
-        """
-        return self._stats['n_repair_operations']
-
-    def get_n_flip_edges_operations(self) -> int:
-        """
-        Returns the number of edge flip operations in the repair set.
-        """
-        return self._stats['n_flip_edges_operations']
-
-    def get_n_add_remove_operations(self) -> int:
-        """
-        Returns the number of add/remove operations in the repair set.
-        """
-        return self._stats['n_add_remove_operations']
-
     def add_repaired_function(self, function: Function) -> None:
         """
         Adds a repaired function to the repair set and updates repair

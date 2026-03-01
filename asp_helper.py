@@ -39,7 +39,7 @@ class ASPHelper:
         """
         result = 1
         try:
-            with open(network.get_input_file_network(), 'r', encoding="utf-8")\
+            with open(network.input_file_network, 'r', encoding="utf-8")\
                  as file:
                 count_line = 0
                 for line in file:
@@ -105,7 +105,7 @@ class ASPHelper:
                                 edge = network.get_edge(start_id, end_id)
 
                                 if edge is not None:
-                                    edge.set_fixed()
+                                    edge.fixed = True
                                 else:
                                     logger.warning(f'WARN!\tUnrecognized edge on line {count_line}: {predicates[i]} Ignoring...')
                                 continue
@@ -188,7 +188,7 @@ class ASPHelper:
                                 continue
         except IOError as exc:
             raise ValueError('ERROR!\tCannot open file ' +
-                             network.get_input_file_network()) from exc
+                             network.input_file_network) from exc
         return result
 
 

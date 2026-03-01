@@ -32,9 +32,9 @@ def repair_inconsistencies(
     repaired and tries to repair the target nodes making the model consistent
     returning the set of repair operations to be applied.
     """
-    for node_id, node in inconsistency.get_i_nodes().items():
+    for node_id, node in inconsistency.inconsistent_nodes.items():
         repair_node_consistency(network, inconsistency, node)
-        if inconsistency.get_has_impossibility():
+        if inconsistency.has_impossibility:
             logger.debug(f"#Found a node with impossibility - {node_id}")
             return
         logger.debug(f"#Found a repair for node - {node_id}")
@@ -51,7 +51,7 @@ def repair_node_consistency(
     """
     original_node = network.get_node(inconsistent_node.identifier)
     original_function = original_node.function
-    original_regulators = original_function.get_regulators() \
+    original_regulators = original_function.regulators \
         if original_function is not None \
         else []
     list_edges_remove = []
@@ -63,9 +63,9 @@ def repair_node_consistency(
             list_edges_remove.append(edge)
 
     max_n_remove = len(list_edges_remove)
-    max_n_add = len(network.get_nodes()) - max_n_remove
+    max_n_add = len(network.nodes) - max_n_remove
 
-    for node_id, node in network.get_nodes().items():
+    for node_id, node in network.nodes.items():
         is_original_regulator = any(node_id == reg_id for reg_id in
                                     original_regulators)
 
@@ -127,7 +127,7 @@ def repair_node_consistency(
                             clause_id += 1
 
                         # TODO does this makes sense? only creating the PFH function if the new function has regulators?
-                        if new_function.get_regulators():
+                        if new_function.regulators:
                             new_function.create_pfh_function()
                         original_node.function = new_function
 
@@ -156,7 +156,7 @@ def repair_node_consistency(
         if sol_found:
             break
     if not sol_found:
-        inconsistency.set_impossibility(True)
+        inconsistency.has_impossibility = True
         logger.warning(f"Not possible to repair node {inconsistent_node.identifier}")
     return
 
@@ -173,7 +173,7 @@ def repair_node_consistency_flipping_edges(
     inconsistency is resolved.
     """
     function = network.get_node(inconsistent_node.identifier).function
-    regulators = function.get_regulators() if function is not None else []
+    regulators = function.regulators if function is not None else []
     list_edges = []
 
     for regulator in regulators:
@@ -187,7 +187,7 @@ def repair_node_consistency_flipping_edges(
 
     # Limit the number of flip edges if the node has already been repaired
     if inconsistent_node.is_repaired():
-        iterations = inconsistent_node.get_n_flip_edges_operations()
+        iterations = inconsistent_node.n_flip_edges_operations
     for n_edges in range(iterations + 1):
         logger.debug(f"Testing with {n_edges} edge flips")
 
@@ -254,7 +254,7 @@ def repair_node_consistency_functions(
     resolve inconsistencies.
     """
     sol_found = False
-    repair_type = inconsistent_node.get_repair_type()
+    repair_type = inconsistent_node.repair_type
 
     # If any topological operation was performed, validate if the model
     # became consistent
@@ -295,9 +295,9 @@ def repair_node_consistency_functions(
 
     # If a solution was already found, avoid searching for function changes
     if inconsistent_node.is_repaired():
-        n_ra_op = inconsistent_node.get_n_add_remove_operations()
-        n_fe_op = inconsistent_node.get_n_flip_edges_operations()
-        n_op = inconsistent_node.get_n_repair_operations()
+        n_ra_op = inconsistent_node.n_add_remove_operations
+        n_fe_op = inconsistent_node.n_flip_edges_operations
+        n_op = inconsistent_node.n_repair_operations
 
         if (n_ra_op == len(added_edges) + len(removed_edges)) and (
                 n_fe_op == len(flipped_edges)) and (n_op == n_ra_op + n_fe_op):

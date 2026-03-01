@@ -86,30 +86,6 @@ class Function:
     def pfh_function(self, value: PFHFunction):
         self._pfh_function = value
 
-    def get_node_id(self) -> str: # TODO: remove
-        """
-        Returns the node ID of the function.
-        """
-        return self.node_id
-
-    def get_distance_from_original(self) -> int:
-        """
-        Returns the distance of this function from the original function.
-        """
-        return self.distance_from_original
-
-    def get_son_consistent(self) -> bool:
-        """
-        Returns whether this function has a consistent descendant.
-        """
-        return self.son_consistent
-
-    def get_pfh_function(self) -> PFHFunction:
-        """
-        Returns the PyFunctionhood function representation.
-        """
-        return self.pfh_function
-
     def get_clauses(self) -> Set[Clause]:
         """
         Returns the set of clauses in the function.
@@ -126,23 +102,11 @@ class Function:
             return self.pfh_get_n_clauses()
         return 0
 
-    def get_regulators(self) -> List[str]:
-        """
-        Returns the list of regulators for this function.
-        """
-        return self.regulators
-
     def get_n_regulators(self) -> int:
         """
         Returns the number of regulators in the function.
         """
         return len(self.regulators)
-
-    def get_regulators_by_term(self) -> Dict[int, List[str]]:
-        """
-        Returns a dictionary mapping terms to their respective regulators.
-        """
-        return self.regulators_by_term
 
     def get_n_terms(self) -> int:
         """
@@ -169,7 +133,7 @@ class Function:
         if self.get_n_regulators() < 1:
             result += "Empty function"
             return result
-        terms = self.get_regulators_by_term()
+        terms = self.regulators_by_term
         for i in range(1, self.get_n_terms() + 1):
             result += "("
             term = terms[i]
@@ -190,32 +154,6 @@ class Function:
         """
         print(self.get_level())
 
-    def set_distance_from_original(self, new_distance: int) -> None:
-        """
-        Sets the distance from the original function.
-        """
-        self.distance_from_original = new_distance
-
-    def set_son_consistent(self, new_son_consistent: bool) -> None:
-        """
-        Marks whether the function has found a consistent descendant.
-        """
-        self.son_consistent = new_son_consistent
-
-    def set_regulators(self, new_regulators: List[str]) -> None:
-        """
-        Sets the list of regulatory nodes for this function.
-        """
-        self.regulators = new_regulators
-
-    def set_regulators_by_term(self,
-                               new_regulators_by_term: Dict[int, List[str]]) \
-            -> None:
-        """
-        Assigns regulators to specific terms in the function.
-        """
-        self._regulators_by_term = new_regulators_by_term
-
     def __eq__(self, other) -> bool:
         if not isinstance(other, Function):
             return False
@@ -224,16 +162,16 @@ class Function:
         if self.regulators != other.regulators:
             return False
 
-        if self.get_pfh_function() is None:
+        if self.pfh_function is None:
             self.create_pfh_function()
-        if other.get_pfh_function() is None:
+        if other.pfh_function is None:
             other.create_pfh_function()
         return self.pfh_function == other.pfh_function
 
     def __hash__(self) -> int:
         if not self.regulators:
             return hash(self.node_id) # Consistent hash for empty function of this node
-        if self.get_pfh_function() is None:
+        if self.pfh_function is None:
             self.create_pfh_function()
         return hash(self.pfh_function)
 
@@ -241,12 +179,12 @@ class Function:
         """
         Compares the hierarchical level of this function with another function.
         """
-        if self is not None and self.get_pfh_function() is None:
+        if self is not None and self.pfh_function is None:
             self.create_pfh_function()
-        if other is not None and other.get_pfh_function() is None \
+        if other is not None and other.pfh_function is None \
                 and isinstance(other, Function):
             other.create_pfh_function()
-        return self.pfh_level_cmp(other.get_pfh_function())
+        return self.pfh_level_cmp(other.pfh_function)
 
     def compare_level_list(self, other: List) -> int:
         """
@@ -443,15 +381,14 @@ class Function:
     #     # FIXME do the setters make sense?
     #     for parent in parents:
     #         function = Function(self.node_id)
-    #         function.set_distance_from_original(
-    #             self.get_distance_from_original() + 1)
+    #         function.distance_from_original = #             self.distance_from_original + 1
     #         # FIXME does it make sense to put consistency equal to the one of
     #         # the parent or should it be the equal to current function (self)?
-    #         function.set_son_consistent(parent.is_consistent())
+    #         function.son_consistent = parent.is_consistent()
     #         # FIXME should regs be the same?
-    #         function.set_regulators(self.get_regulators())
-    #         function.set_regulators_by_term(self.get_active_regulators(
-    #             parent.get_clauses()))
+    #         function.regulators = self.regulators
+    #         function.regulators_by_term = self.get_active_regulators(
+    #             parent.get_clauses())
     #         function.add_pfh_function(parent)
     #         result.append(function)
     #     return result
@@ -468,15 +405,14 @@ class Function:
     #     for child in children:
     #         # TODO can/should clone_rm_add be used here?
     #         function = Function(self.node_id)
-    #         function.set_distance_from_original(
-    #             self.get_distance_from_original() + 1)
+    #         function.distance_from_original = #             self.distance_from_original + 1
     #         # FIXME does it make sense to put consistency equal to the one of
     #         # the child or should it be the equal to current function (self)?
-    #         function.set_son_consistent(child.is_consistent())
+    #         function.son_consistent = child.is_consistent()
     #         # FIXME should regs be the same?
-    #         function.set_regulators(self.get_regulators())
-    #         function.set_regulators_by_term(self.get_active_regulators(
-    #             child.get_clauses()))
+    #         function.regulators = self.regulators
+    #         function.regulators_by_term = self.get_active_regulators(
+    #             child.get_clauses())
     #         function.add_pfh_function(child)
     #         result.append(function)
     #     return result
@@ -502,14 +438,13 @@ class Function:
         Create and configure a new Function instance from Hasse element.
         """
         new_func = Function(self.node_id)
-        new_func.set_distance_from_original(
-            self.get_distance_from_original() + 1)
-        new_func.set_son_consistent(element.is_consistent())
-        new_func.set_regulators(self.get_regulators())
+        new_func.distance_from_original = self.distance_from_original + 1
+        new_func.son_consistent = element.is_consistent()
+        new_func.regulators = self.regulators
 
         # Get clauses based on relationship type
         clauses = element.get_clauses()
-        new_func.set_regulators_by_term(self.get_active_regulators(clauses))
+        new_func.regulators_by_term = self.get_active_regulators(clauses)
         new_func.add_pfh_function(element)
         return new_func
 

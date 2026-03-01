@@ -109,49 +109,6 @@ class InconsistentNode:
     def repair_type(self, value: int):
         self._repair_type = value
 
-    def get_id(self) -> str:
-        """
-        Returns the identifier of the node.
-        """
-        return self.identifier
-
-    def get_generalization(self) -> bool:
-        """
-        Returns whether the node is a generalization.
-        """
-        return self.generalization
-
-    def get_repair_set(self) -> List[RepairSet]:
-        """
-        Returns the list of repair sets associated with the node.
-        """
-        return self.repair_sets
-
-    def get_n_topology_changes(self) -> int:
-        """
-        Returns the number of topology changes required to repair the node.
-        """
-        return self.n_topology_changes
-
-    def get_n_repair_operations(self) -> int:
-        """
-        Returns the number of repair operations required to repair the node.
-        """
-        return self.n_repair_operations
-
-    def get_n_add_remove_operations(self) -> int:
-        """
-        Returns the number of add/remove operations required to repair the
-        node.
-        """
-        return self.n_add_remove_operations
-
-    def get_n_flip_edges_operations(self) -> int:
-        """
-        Returns the number of edge flip operations required to repair the node.
-        """
-        return self.n_flip_edges_operations
-
     def is_repaired(self) -> bool:
         """
         Returns whether the node has been repaired.
@@ -164,25 +121,6 @@ class InconsistentNode:
         """
         return self.topological_error
 
-    def get_repair_type(self) -> int:
-        """
-        Returns the repair type of the node (1 for generalization, 2 for
-        particularization).
-        """
-        return self.repair_type
-
-    def set_repair_type(self, repair_type: int) -> None:
-        """
-        Sets the repair type of the node.
-        """
-        self.repair_type = repair_type
-
-    def set_topological_error(self, topological_error: bool) -> None:
-        """
-        Sets whether the node has a topological error.
-        """
-        self.topological_error = topological_error
-
     def add_repair_set(self, repair_set: RepairSet) -> None:
         """
         Adds a repair set to the node and updates repair statistics.
@@ -190,41 +128,41 @@ class InconsistentNode:
         """
         if not self.repaired:
             self.repaired = True
-            self.n_topology_changes = repair_set.get_n_topology_changes()
-            self.n_repair_operations = repair_set.get_n_repair_operations()
+            self.n_topology_changes = repair_set.n_topology_changes
+            self.n_repair_operations = repair_set.n_repair_operations
             self.n_flip_edges_operations = \
-                repair_set.get_n_flip_edges_operations()
+                repair_set.n_flip_edges_operations
             self.n_add_remove_operations = \
-                repair_set.get_n_add_remove_operations()
+                repair_set.n_add_remove_operations
         else:
             # If new solutions is worse, ignore
-            if (repair_set.get_n_add_remove_operations() >
+            if (repair_set.n_add_remove_operations >
                     self.n_add_remove_operations):
                 return
-            if (repair_set.get_n_add_remove_operations() ==
+            if (repair_set.n_add_remove_operations ==
                     self.n_add_remove_operations and
-                    repair_set.get_n_flip_edges_operations() >
+                    repair_set.n_flip_edges_operations >
                     self.n_flip_edges_operations):
                 return
-            if (repair_set.get_n_add_remove_operations() ==
+            if (repair_set.n_add_remove_operations ==
                     self.n_add_remove_operations and
-                    repair_set.get_n_flip_edges_operations() ==
+                    repair_set.n_flip_edges_operations ==
                     self.n_flip_edges_operations and
-                    repair_set.get_n_repair_operations() >
+                    repair_set.n_repair_operations >
                     self.n_repair_operations):
                 return
 
             # If new solution is better, remove all others before
             # At this point we know that the new repair is at least as good as
             # existing ones
-            if repair_set.get_n_repair_operations() < self.n_repair_operations:
+            if repair_set.n_repair_operations < self.n_repair_operations:
                 self.repair_sets.clear()
-                self.n_topology_changes = repair_set.get_n_topology_changes()
-                self.n_repair_operations = repair_set.get_n_repair_operations()
+                self.n_topology_changes = repair_set.n_topology_changes
+                self.n_repair_operations = repair_set.n_repair_operations
                 self.n_add_remove_operations = \
-                    repair_set.get_n_add_remove_operations()
+                    repair_set.n_add_remove_operations
                 self.n_flip_edges_operations = \
-                    repair_set.get_n_flip_edges_operations()
+                    repair_set.n_flip_edges_operations
         self.repair_sets.append(repair_set)
 
 Inconsistent_Node = InconsistentNode  # Alias for backward compatibility

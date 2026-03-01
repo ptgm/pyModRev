@@ -42,7 +42,7 @@ def search_comparable_functions(
 
     if original_f is None:
         logger.warning(f"Inconsistent node {inconsistent_node.identifier} without regulatory function")
-        inconsistency.set_impossibility(True)
+        inconsistency.has_impossibility = True
         return False
 
     if original_f.get_n_regulators() < 2:
@@ -58,7 +58,7 @@ def search_comparable_functions(
     while t_candidates:
         candidate_sol = False
         candidate = t_candidates.pop(0)
-        if function_repaired and candidate.get_distance_from_original() > \
+        if function_repaired and candidate.distance_from_original > \
                 repaired_function_level:
             continue
         if is_func_consistent_with_label(network, inconsistency, candidate):
@@ -75,7 +75,7 @@ def search_comparable_functions(
                                          repair_set)
             function_repaired = True
             sol_found = True
-            repaired_function_level = candidate.get_distance_from_original()
+            repaired_function_level = candidate.distance_from_original
 
             if not config.show_all_functions:
                 break
@@ -116,7 +116,7 @@ def search_non_comparable_functions(
     # Each function must have a list of replacement candidates and each must
     # be tested until it works
     original_f = network.get_node(inconsistent_node.identifier).function
-    original_map = original_f.get_regulators_by_term()
+    original_map = original_f.regulators_by_term
 
     if original_f.get_n_regulators() < 2:
         return False
@@ -162,7 +162,7 @@ def search_non_comparable_functions(
             is_consistent = True
             consistent_functions.append(candidate)
             if not function_repaired:
-                logger.debug(f"Found first function at level {candidate.get_distance_from_original()} {candidate.print_function()}")
+                logger.debug(f"Found first function at level {candidate.distance_from_original} {candidate.print_function()}")
             function_repaired, sol_found = True, True
             if level_compare:
                 cmp = original_f.compare_level(candidate)
@@ -227,7 +227,7 @@ def search_non_comparable_functions(
 
         new_candidates = candidate.get_replacements(is_generalize)
         for new_candidate in new_candidates:
-            new_candidate.set_son_consistent(is_consistent)
+            new_candidate.son_consistent = is_consistent
             if new_candidate not in candidates:
                 candidates.append(new_candidate)
         if not is_consistent:

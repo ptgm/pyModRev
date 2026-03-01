@@ -17,27 +17,27 @@ def sample_data():
     return n1, n2, f1, e1, e2
 
 def test_initial_values(repair_set):
-    assert len(repair_set.get_repaired_functions()) == 0
-    assert len(repair_set.get_flipped_edges()) == 0
-    assert repair_set.get_n_repair_operations() == 0
+    assert len(repair_set.repaired_functions) == 0
+    assert len(repair_set.flipped_edges) == 0
+    assert repair_set.n_repair_operations == 0
 
 def test_add_repaired_function(repair_set, sample_data):
     _, _, f1, _, _ = sample_data
     repair_set.add_repaired_function(f1)
-    assert f1 in repair_set.get_repaired_functions()
-    assert repair_set.get_n_repair_operations() == 1
+    assert f1 in repair_set.repaired_functions
+    assert repair_set.n_repair_operations == 1
 
 def test_add_flipped_edge(repair_set, sample_data):
     _, _, _, e1, _ = sample_data
     repair_set.add_flipped_edge(e1)
-    assert e1 in repair_set.get_flipped_edges()
-    assert repair_set.get_n_flip_edges_operations() == 1
+    assert e1 in repair_set.flipped_edges
+    assert repair_set.n_flip_edges_operations == 1
 
 def test_remove_edge(repair_set, sample_data):
     _, _, _, e1, _ = sample_data
     repair_set.remove_edge(e1)
-    assert e1 in repair_set.get_removed_edges()
-    assert repair_set.get_n_add_remove_operations() == 1
+    assert e1 in repair_set.removed_edges
+    assert repair_set.n_add_remove_operations == 1
 
 def test_repair_set_equality(sample_data):
     n1, n2, f1, e1, e2 = sample_data

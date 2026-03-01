@@ -25,7 +25,7 @@ def test_edge_flip_sign(sample_nodes):
 def test_edge_set_fixed(sample_nodes):
     node1, node2, _ = sample_nodes
     edge = Edge(node1, node2, 1)
-    edge.set_fixed()
+    edge.fixed = True
     assert edge.fixed
 
 def test_edge_equality_and_hash(sample_nodes):

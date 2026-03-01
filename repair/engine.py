@@ -43,7 +43,7 @@ def model_revision(network: Network) -> None:
         print("This network is consistent!")
         return
 
-    logger.debug(f"Found {len(f_inconsistencies)} solution(s) with {len(f_inconsistencies[0].get_i_nodes())} inconsistent node(s)")
+    logger.debug(f"Found {len(f_inconsistencies)} solution(s) with {len(f_inconsistencies[0].inconsistent_nodes)} inconsistent node(s)")
 
     # At this point we have an inconsistent network with node candidates
     # to be repaired
@@ -52,12 +52,12 @@ def model_revision(network: Network) -> None:
         repair_inconsistencies(network, inconsistency)
 
         # Check for valid solution
-        if not inconsistency.get_has_impossibility():
+        if not inconsistency.has_impossibility:
             if best_solution is None \
                     or inconsistency.compare_repairs(best_solution) > 0:
                 best_solution = inconsistency
-                logger.debug(f"Found a solution with {best_solution.get_n_topology_changes()} topology changes")
-                if best_solution.get_n_topology_changes() == 0 and not \
+                logger.debug(f"Found a solution with {best_solution.n_topology_changes} topology changes")
+                if best_solution.n_topology_changes == 0 and not \
                         config.all_opt:
                     break
         else:
@@ -71,8 +71,8 @@ def model_revision(network: Network) -> None:
 
     if config.all_opt:
         for inconsistency in f_inconsistencies:
-            logger.debug(f"Checking for printing solution with {inconsistency.get_n_topology_changes()} topology changes")
-            if not inconsistency.get_has_impossibility() \
+            logger.debug(f"Checking for printing solution with {inconsistency.n_topology_changes} topology changes")
+            if not inconsistency.has_impossibility \
                     and (inconsistency.compare_repairs(best_solution) >= 0
                          or show_sub_opt):
                 if show_sub_opt \

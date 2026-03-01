@@ -44,7 +44,7 @@ class SteadyStateUpdater(Updater):
         """
         logger.debug(f"Checking consistency of function: {function.print_function()} of node {function.node_id}")
 
-        profile_map = labeling.get_v_label()[profile]
+        profile_map = labeling.v_label[profile]
 
         # For steady state, we expect exactly one time mapping
         # if len(profile_map) != 1:
@@ -83,14 +83,14 @@ class SteadyStateUpdater(Updater):
         """
         logger.debug(f"Checking consistency of function: {function.print_function()} of node {function.node_id}")
 
-        profile_map = labeling.get_v_label()[profile]
+        profile_map = labeling.v_label[profile]
         # For steady state, we expect exactly one time mapping
         # if len(profile_map) != 1:
         #     print("ERROR: SteadyStateUpdater expects a single time mapping.")
         #     return False
 
         result = Inconsistencies.CONSISTENT.value
-        profile_map = labeling.get_v_label()[profile]
+        profile_map = labeling.v_label[profile]
 
         time_key = next(iter(profile_map))
         time_map = profile_map[time_key]

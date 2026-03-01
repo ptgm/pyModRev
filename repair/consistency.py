@@ -44,7 +44,7 @@ def n_func_inconsistent_with_label(
     double inconsistency).
     """
     result = Inconsistencies.CONSISTENT.value
-    for key in labeling.get_v_label():
+    for key in labeling.v_label:
         ret = n_func_inconsistent_with_label_with_profile(network, labeling, function, key)
         logger.debug(f"Consistency value: {ret} for node {function.node_id} with function: {function.print_function()}")
         if result == Inconsistencies.CONSISTENT.value:
@@ -67,10 +67,10 @@ def n_func_inconsistent_with_label_with_profile(
     consistency status (consistent, single inconsistency, or double
     inconsistency) based on the profile.
     """
-    if len(labeling.get_v_label()[profile]) == 1 and network.get_has_ss_obs():
+    if len(labeling.v_label[profile]) == 1 and network.has_ss_obs:
         return SteadyStateUpdater.n_func_inconsistent_with_label_with_profile(network, labeling, function, profile)
-    for updater in network.get_updaters():
-        if len(labeling.get_v_label()[profile]) != 1 and updater.__class__.__name__.lower() != SteadyStateUpdater.__name__.lower():
+    for updater in network.updaters:
+        if len(labeling.v_label[profile]) != 1 and updater.__class__.__name__.lower() != SteadyStateUpdater.__name__.lower():
             return updater.n_func_inconsistent_with_label_with_profile(network, labeling, function, profile)
 
 
@@ -83,7 +83,7 @@ def is_func_consistent_with_label(
     """
     return all(
         is_func_consistent_with_label_with_profile(network, labeling, function, profile)
-        for profile in labeling.get_v_label()
+        for profile in labeling.v_label
     )
 
 
@@ -98,10 +98,10 @@ def is_func_consistent_with_label_with_profile(
     clauses are satisfied at each time step. It considers both stable states
     and dynamic updates based on the profile's labeling.
     """
-    if len(labeling.get_v_label()[profile]) == 1 and network.get_has_ss_obs():
+    if len(labeling.v_label[profile]) == 1 and network.has_ss_obs:
         return SteadyStateUpdater.is_func_consistent_with_label_with_profile(network, labeling, function, profile)
-    for updater in network.get_updaters():
-        if len(labeling.get_v_label()[profile]) != 1 and updater.__class__.__name__.lower() != SteadyStateUpdater.__name__.lower():
+    for updater in network.updaters:
+        if len(labeling.v_label[profile]) != 1 and updater.__class__.__name__.lower() != SteadyStateUpdater.__name__.lower():
             return updater.is_func_consistent_with_label_with_profile(network, labeling, function, profile)
 
 
@@ -158,7 +158,7 @@ def is_function_in_bottom_half_by_state(
     Determines if a function is in the bottom half based on its state by
     evaluating its output across all possible input combinations.
     """
-    regulators = function.get_regulators()
+    regulators = function.regulators
     n_regulators = function.get_n_regulators()
     entries = int(math.pow(2, n_regulators))
     n_one = 0

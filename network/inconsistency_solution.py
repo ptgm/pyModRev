@@ -111,78 +111,11 @@ class InconsistencySolution:
     def has_impossibility(self, value: bool):
         self._has_impossibility = value
 
-    def get_i_nodes(self) -> Dict[str, InconsistentNode]:
-        """
-        Returns all inconsistent nodes in the solution.
-        """
-        return self.inconsistent_nodes
-
     def get_i_node(self, node_id: str) -> InconsistentNode:
         """
         Returns the inconsistent node with the given identifier.
         """
         return self.inconsistent_nodes[node_id]
-
-    def get_v_label(self):
-        """
-        Returns the completed observations filled in by ASP.
-        """
-        return self.v_label
-
-    def get_updates(self):
-        """
-        Returns the updates made for asynchronous operations.
-        """
-        return self.updates
-
-    def get_i_profiles(self):
-        """
-        Returns the inconsistent profiles and their respective nodes.
-        """
-        return self.inconsistent_profiles
-
-    def get_i_nodes_profiles(self):
-        """
-        Returns the inconsistent nodes grouped by observation.
-        """
-        return self.inconsistent_nodes_profiles
-
-    def get_n_topology_changes(self) -> int:
-        """
-        Returns the number of topology changes required for the solution.
-        """
-        return self.n_topology_changes
-
-    def get_n_ar_operations(self) -> int:
-        """
-        Returns the number of add/remove operations required for the solution.
-        """
-        return self.n_ar_operations
-
-    def get_n_e_operations(self) -> int:
-        """
-        Returns the number of edge flip operations required for the solution.
-        """
-        return self.n_e_operations
-
-    def get_n_repair_operations(self) -> int:
-        """
-        Returns the total number of repair operations required for the
-        solution.
-        """
-        return self.n_repair_operations
-
-    def get_has_impossibility(self) -> bool:
-        """
-        Returns whether the solution is impossible to repair.
-        """
-        return self.has_impossibility
-
-    def set_impossibility(self, impossibility: bool) -> None:
-        """
-        Sets whether the solution is impossible to repair.
-        """
-        self.has_impossibility = impossibility
 
     def compare_repairs(self, solution: "InconsistencySolution") -> int:
         """
@@ -194,15 +127,15 @@ class InconsistencySolution:
             1 if provided solution is weaker than current solution
         """
         if (
-            self.n_ar_operations < solution.get_n_ar_operations()
-            or self.n_e_operations < solution.get_n_e_operations()
-            or self.n_repair_operations < solution.get_n_repair_operations()
+            self.n_ar_operations < solution.n_ar_operations
+            or self.n_e_operations < solution.n_e_operations
+            or self.n_repair_operations < solution.n_repair_operations
         ):
             return 1
         if (
-            self.n_ar_operations > solution.get_n_ar_operations()
-            or self.n_e_operations > solution.get_n_e_operations()
-            or self.n_repair_operations > solution.get_n_repair_operations()
+            self.n_ar_operations > solution.n_ar_operations
+            or self.n_e_operations > solution.n_e_operations
+            or self.n_repair_operations > solution.n_repair_operations
         ):
             return -1
         return 0
@@ -216,11 +149,11 @@ class InconsistencySolution:
             self.inconsistent_nodes[node_id] = InconsistentNode(node_id, True)
         else:
             i_node = self.inconsistent_nodes[node_id]
-            if i_node.get_repair_type() != 1:
-                if i_node.get_repair_type() == 0:
-                    i_node.set_repair_type(1)
+            if i_node.repair_type != 1:
+                if i_node.repair_type == 0:
+                    i_node.repair_type = 1
                 else:
-                    i_node.set_repair_type(3)
+                    i_node.repair_type = 3
 
     def add_particularization(self, node_id: str) -> None:
         """
@@ -231,11 +164,11 @@ class InconsistencySolution:
             self.inconsistent_nodes[node_id] = InconsistentNode(node_id, False)
         else:
             i_node = self.inconsistent_nodes[node_id]
-            if i_node.get_repair_type() != 2:
-                if i_node.get_repair_type() == 0:
-                    i_node.set_repair_type(2)
+            if i_node.repair_type != 2:
+                if i_node.repair_type == 0:
+                    i_node.repair_type = 2
                 else:
-                    i_node.set_repair_type(3)
+                    i_node.repair_type = 3
 
     def add_topological_error(self, node_id: str) -> None:
         """
@@ -243,11 +176,11 @@ class InconsistencySolution:
         """
         if node_id not in self.inconsistent_nodes:
             new_i_node = InconsistentNode(node_id, False)
-            new_i_node.set_repair_type(0)
-            new_i_node.set_topological_error(True)
+            new_i_node.repair_type = 0
+            new_i_node.topological_error = True
             self.inconsistent_nodes[node_id] = new_i_node
         else:
-            self.inconsistent_nodes[node_id].set_topological_error(True)
+            self.inconsistent_nodes[node_id].topological_error = True
 
     def add_v_label(self, profile, node_id: str, value, time) -> None:
         """
@@ -291,46 +224,46 @@ class InconsistencySolution:
         target = self.inconsistent_nodes[node_id]
         if target:
             if not target.repaired:
-                self.n_topology_changes += repair_set.get_n_topology_changes()
+                self.n_topology_changes += repair_set.n_topology_changes
                 self.n_ar_operations += \
-                    repair_set.get_n_add_remove_operations()
+                    repair_set.n_add_remove_operations
                 self.n_e_operations += \
-                    repair_set.get_n_flip_edges_operations()
+                    repair_set.n_flip_edges_operations
                 self.n_repair_operations += \
-                    repair_set.get_n_repair_operations()
+                    repair_set.n_repair_operations
             else:
-                if repair_set.get_n_add_remove_operations() > \
-                        target.get_n_add_remove_operations():
+                if repair_set.n_add_remove_operations > \
+                        target.n_add_remove_operations:
                     return
-                if repair_set.get_n_add_remove_operations() == \
-                        target.get_n_add_remove_operations() and \
-                        repair_set.get_n_flip_edges_operations() > \
-                        target.get_n_flip_edges_operations():
+                if repair_set.n_add_remove_operations == \
+                        target.n_add_remove_operations and \
+                        repair_set.n_flip_edges_operations > \
+                        target.n_flip_edges_operations:
                     return
-                if repair_set.get_n_add_remove_operations() == \
-                        target.get_n_add_remove_operations() and \
-                        repair_set.get_n_flip_edges_operations() == \
-                        target.get_n_flip_edges_operations() and \
-                        repair_set.get_n_repair_operations() > \
-                        target.get_n_repair_operations():
+                if repair_set.n_add_remove_operations == \
+                        target.n_add_remove_operations and \
+                        repair_set.n_flip_edges_operations == \
+                        target.n_flip_edges_operations and \
+                        repair_set.n_repair_operations > \
+                        target.n_repair_operations:
                     return
-                if repair_set.get_n_repair_operations() < \
-                        target.get_n_repair_operations():
-                    self.n_topology_changes -= target.get_n_topology_changes()
+                if repair_set.n_repair_operations < \
+                        target.n_repair_operations:
+                    self.n_topology_changes -= target.n_topology_changes
                     self.n_topology_changes += \
-                        repair_set.get_n_topology_changes()
+                        repair_set.n_topology_changes
                     self.n_ar_operations -= \
-                        target.get_n_add_remove_operations()
+                        target.n_add_remove_operations
                     self.n_ar_operations += \
-                        repair_set.get_n_add_remove_operations()
+                        repair_set.n_add_remove_operations
                     self.n_e_operations -= \
-                        target.get_n_flip_edges_operations()
+                        target.n_flip_edges_operations
                     self.n_e_operations += \
-                        repair_set.get_n_flip_edges_operations()
+                        repair_set.n_flip_edges_operations
                     self.n_repair_operations -= \
-                        target.get_n_repair_operations()
+                        target.n_repair_operations
                     self.n_repair_operations += \
-                        repair_set.get_n_repair_operations()
+                        repair_set.n_repair_operations
             target.add_repair_set(repair_set)
 
     def print_solution(self, verbose_level: int, print_all) -> None:
@@ -348,17 +281,17 @@ class InconsistencySolution:
         for i_node in self.inconsistent_nodes.values():
             print(f"\tInconsistent node {i_node.identifier}.")
             i = 1
-            for repair in i_node.get_repair_set():
+            for repair in i_node.repair_sets:
                 if print_all:
                     print(f"\t\tRepair #{i}:")
                     i += 1
-                for repaired_function in repair.get_repaired_functions():
+                for repaired_function in repair.repaired_functions:
                     print(f"\t\t\tChange function of {repaired_function.node_id} to {repaired_function.print_function()}.")
-                for flipped_edge in repair.get_flipped_edges():
+                for flipped_edge in repair.flipped_edges:
                     print(f"\t\t\tFlip sign of edge ({flipped_edge.start_node.identifier},{flipped_edge.end_node.identifier}).")
-                for removed_edge in repair.get_removed_edges():
+                for removed_edge in repair.removed_edges:
                     print(f"\t\t\tRemove edge ({removed_edge.start_node.identifier},{removed_edge.end_node.identifier}).")
-                for added_edge in repair.get_added_edges():
+                for added_edge in repair.added_edges:
                     print(f"\t\t\tAdd edge ({added_edge.start_node.identifier},{added_edge.end_node.identifier}) with sign {added_edge.sign}.")
                 if not print_all:
                     break
@@ -388,32 +321,32 @@ class InconsistencySolution:
             print(i_node.identifier, end="")
             print(":{" if verbose_level > 0 else "@", end="")
             first_repair = True
-            for repair in i_node.get_repair_set():
+            for repair in i_node.repair_sets:
                 if not first_repair:
                     print(";" if verbose_level > 0 else ":", end="")
                 first_repair = False
                 if verbose_level > 0:
                     print("{", end="")
                 first = True
-                for added_edge in repair.get_added_edges():
+                for added_edge in repair.added_edges:
                     if not first:
                         print(";" if verbose_level > 0 else ":", end="")
                     first = False
                     print(f"A:({added_edge.start_node.identifier},{added_edge.end_node.identifier},{added_edge.sign})" if verbose_level > 0
                           else f"A,{added_edge.start_node.identifier},{added_edge.end_node.identifier},{added_edge.sign}", end="")
-                for removed_edge in repair.get_removed_edges():
+                for removed_edge in repair.removed_edges:
                     if not first:
                         print(";" if verbose_level > 0 else ":", end="")
                     first = False
                     print(f"R:({removed_edge.start_node.identifier},{removed_edge.end_node.identifier})" if verbose_level > 0
                           else f"R,{removed_edge.start_node.identifier},{removed_edge.end_node.identifier}", end="")
-                for flipped_edge in repair.get_flipped_edges():
+                for flipped_edge in repair.flipped_edges:
                     if not first:
                         print(";" if verbose_level > 0 else ":", end="")
                     first = False
                     print(f"E:({flipped_edge.start_node.identifier},{flipped_edge.end_node.identifier})" if verbose_level > 0
                           else f"E,{flipped_edge.start_node.identifier},{flipped_edge.end_node.identifier}", end="")
-                for repaired_function in repair.get_repaired_functions():
+                for repaired_function in repair.repaired_functions:
                     if not first:
                         print(";" if verbose_level > 0 else ":", end="")
                     first = False
@@ -443,7 +376,7 @@ class InconsistencySolution:
             }
             first_repair_set = True
             i = 1
-            for repair in node.get_repair_set():
+            for repair in node.repair_sets:
                 if not first_repair_set:
                     node_data["repair_set"].append({})
                 first_repair_set = False
@@ -454,25 +387,25 @@ class InconsistencySolution:
                 }
                 i += 1
                 # Adding function repairs
-                for func in repair.get_repaired_functions():
+                for func in repair.repaired_functions:
                     repair_data["repairs"].append({
                         "type": "F",
                         "value": func.print_function()
                     })
                 # Adding flipped edges
-                for flipped_edge in repair.get_flipped_edges():
+                for flipped_edge in repair.flipped_edges:
                     repair_data["repairs"].append({
                         "type": "E",
                         "value": f"({flipped_edge.start_<node.identifier}, {flipped_edge.end_node.identifier})"
                     })
                 # Adding removed edges
-                for removed_edge in repair.get_removed_edges():
+                for removed_edge in repair.removed_edges:
                     repair_data["repairs"].append({
                         "type": "R",
                         "value": f"({removed_edge.start_<node.identifier}, {removed_edge.end_node.identifier})"
                     })
                 # Adding added edges
-                for added_edge in repair.get_added_edges():
+                for added_edge in repair.added_edges:
                     repair_data["repairs"].append({
                         "type": "A",
                         "value": f"({added_edge.start_<node.identifier}, {added_edge.end_node.identifier})",

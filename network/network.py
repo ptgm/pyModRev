@@ -94,14 +94,8 @@ class Network:
     def has_ts_obs(self, value: bool):
         self._has_ts_obs = value
 
-    def get_updaters(self) -> Set:
-        return self.updaters
-
     def add_updater(self, updater) -> None:
         self.updaters.add(updater)
-
-    def get_updaters_name(self) -> Set:
-        return self.updaters_name
 
     def add_updater_name(self, updater_name: str) -> None:
         self.updaters_name.add(updater_name)
@@ -112,12 +106,6 @@ class Network:
         """
         return self.nodes.get(node_id)
 
-    def get_nodes(self) -> Dict[str, Node]:
-        """
-        Returns all nodes in the network as a dictionary.
-        """
-        return self.nodes
-
     def get_edge(self, start_node_id: str, end_node_id: str) -> Edge:
         """
         Retrieves an edge between two nodes by their identifiers.
@@ -127,48 +115,6 @@ class Network:
                 if edge.end_node.identifier == end_node_id:
                     return edge
         raise EdgeNotFoundError(f"Edge from {start_node_id} to {end_node_id} does not exist!")
-
-    def get_graph(self) -> Dict[str, List[Edge]]:
-        """
-        Returns the graph representation of the network.
-        """
-        return self.graph
-
-    def get_regulators(self) -> Dict[str, List[str]]:
-        """
-        Returns the regulators of each node in the network.
-        """
-        return self.regulators
-
-    def get_input_file_network(self) -> str:
-        """
-        Returns the input file associated with the network.
-        """
-        return self.input_file_network
-
-    def get_observation_files(self) -> List:
-        """
-        Returns the list of observation files associated with the network.
-        """
-        return self.observation_files
-
-    def get_observation_files_with_updater(self) -> List:
-        """
-        Returns the list of observation files associated with the network.
-        """
-        return self.observation_files_with_updater
-
-    def get_has_ss_obs(self) -> bool:
-        """
-        Returns whether the network has steady-state observations.
-        """
-        return self.has_ss_obs
-
-    def get_has_ts_obs(self) -> bool:
-        """
-        Returns whether the network has time-series observations.
-        """
-        return self.has_ts_obs
 
     def add_node(self, node_id: str) -> Node:
         """
@@ -212,24 +158,6 @@ class Network:
                 del self.regulators[end_node.identifier]
         except ValueError:
             print(f"No edge exists between {start_node.identifier} and {end_node.identifier}")
-
-    def set_has_ss_obs(self, has_ss_obs: bool) -> None:
-        """
-        Sets whether the network has steady-state observations.
-        """
-        self.has_ss_obs = has_ss_obs
-
-    def set_has_ts_obs(self, has_ts_obs: bool) -> None:
-        """
-        Sets whether the network has time-series observations.
-        """
-        self.has_ts_obs = has_ts_obs
-
-    def set_input_file_network(self, input_file_network: str) -> None:
-        """
-        Sets the input file associated with the network.
-        """
-        self.input_file_network = input_file_network
 
     def add_observation_file(self, observation_file: str) -> None:
         """

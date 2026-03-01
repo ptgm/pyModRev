@@ -80,10 +80,10 @@ class Updater(ABC):
             base_lp = os.path.join(os.path.dirname(__file__), '..', 'asp_rules', 'base.lp')
             ctl.load(base_lp)
 
-            for updater in network.get_updaters():
+            for updater in network.updaters:
                 updater.apply_update_rules(ctl, updater)
-            ctl.load(network.get_input_file_network())
-            for obs_file in network.get_observation_files():
+            ctl.load(network.input_file_network)
+            for obs_file in network.observation_files:
                 ctl.load(obs_file)
             ctl.ground([('base', [])])
             with ctl.solve(yield_=True) as handle:

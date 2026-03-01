@@ -47,7 +47,7 @@ class AsyncUpdater(TimeSeriesUpdater):
         """
         logger.debug(f"Checking consistency of function: {function.print_function()} of node {function.node_id}")
 
-        profile_map = labeling.get_v_label()[profile]
+        profile_map = labeling.v_label[profile]
         time = 0
         last_val = -1
 
@@ -104,7 +104,7 @@ class AsyncUpdater(TimeSeriesUpdater):
 
         logger.debug(f"Checking consistency of function: {function.print_function()} of node {function.node_id}")
         result = Inconsistencies.CONSISTENT.value
-        profile_map = labeling.get_v_label()[profile]
+        profile_map = labeling.v_label[profile]
         time = 0
         last_val = -1
 
