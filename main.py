@@ -14,6 +14,7 @@ from importlib import util
 from typing import List, Dict
 from network.network import Network
 from asp_helper import ASPHelper
+from parsers.reader_factory import get_reader
 from configuration import config
 from updaters.async_updater import AsyncUpdater
 from updaters.sync_updater import SyncUpdater
@@ -121,7 +122,15 @@ def load_classes_from_file(file_path: str) -> Dict:
 if __name__ == '__main__':
     network = Network()
     process_arguments(network)
-    parse = ASPHelper.parse_network(network)
+    
+    # Delegate parsing to the correct reader based on file extension
+    try:
+        reader = get_reader(network.input_file_network)
+        parse = reader.read(network, network.input_file_network)
+    except ValueError as e:
+        logger.error(str(e))
+        sys.exit(1)
+
     if parse < 1 and not config.ignore_warnings:
         logger.error('Model definition with errors. Check documentation for input definition details.')
     else:
