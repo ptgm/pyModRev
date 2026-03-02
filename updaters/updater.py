@@ -90,8 +90,7 @@ class Updater(ABC):
                 if handle.get().satisfiable:
                     for model in handle:
                         if model and model.optimality_proven:
-                            from asp_helper import ASPHelper
-                            res, opt = ASPHelper.parse_cc_model(model)
+                            res, opt = Updater.parse_cc_model(model)
                             result.append(res)
                             optimization = opt
                 else:
@@ -100,6 +99,53 @@ class Updater(ABC):
             print(f'Failed to check consistency: {e}')
             sys.exit(-1)
         return result, optimization
+
+    @staticmethod
+    def parse_cc_model(model: clingo.Model) -> Tuple[InconsistencySolution, int]:
+        """
+        Parses a clingo model to extract inconsistency information.
+        """
+        inconsistency = InconsistencySolution()
+        count = 0
+        for atom in model.symbols(atoms=True):
+            name = atom.name
+            args = atom.arguments
+            if name == 'vlabel':
+                if len(args) > 3:
+                    inconsistency.add_v_label(str(args[0]), str(args[2]),
+                                              int(str(args[3])),
+                                              int(str(args[1])))
+                else:
+                    inconsistency.add_v_label(str(args[0]), str(args[1]),
+                                              int(str(args[2])), 0)
+                continue
+            if name == 'r_gen':
+                inconsistency.add_generalization(str(args[0]))
+                continue
+            if name == 'r_part':
+                inconsistency.add_particularization(str(args[0]))
+                continue
+            if name == 'repair':
+                count += 1
+                continue
+            if name == 'update':
+                inconsistency.add_update(int(str(args[1])), str(args[0]),
+                                         str(args[2]))
+                continue
+            if name == 'topologicalerror':
+                inconsistency.add_topological_error(str(args[0]))
+                continue
+            if name == 'inc':
+                inconsistency.add_inconsistent_profile(str(args[0]),
+                                                       str(args[1]))
+                continue
+            if name == 'incT':
+                inconsistency.add_inconsistent_profile(str(args[0]),
+                                                       str(args[2]))
+                inconsistency.add_inconsistent_profile(str(args[1]),
+                                                       str(args[2]))
+                continue
+        return inconsistency, count
 
     @staticmethod
     def is_clause_satisfiable(

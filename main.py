@@ -13,7 +13,6 @@ import logging
 from importlib import util
 from typing import List, Dict
 from network.network import Network
-from asp_helper import ASPHelper
 from parsers.reader_factory import get_reader
 from configuration import config
 from updaters.async_updater import AsyncUpdater

@@ -13,7 +13,7 @@ from typing import List, Dict, Tuple
 from network.inconsistency_solution import InconsistencySolution
 from network.network import Network
 from network.function import Function
-from asp_helper import ASPHelper
+from updaters.updater import Updater
 from updaters.steady_state_updater import SteadyStateUpdater
 from configuration import config, Inconsistencies
 
@@ -27,8 +27,7 @@ def check_consistency(network: Network) -> Tuple[List[InconsistencySolution], in
     result = []
     optimization = -2
     if config.check_asp:
-        # result, optimization = ASPHelper.check_consistency(network, config.update.value)
-        result, optimization = ASPHelper.check_consistency(network)
+        result, optimization = Updater.check_consistency(network)
     else:
         pass
     return result, optimization

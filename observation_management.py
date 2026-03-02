@@ -3,7 +3,7 @@ import json
 from colomoto_jupyter.sessionfiles import new_output_file
 from ginsim.gateway import japi
 import biolqm
-from asp_helper import ASPHelper
+from updaters.updater import Updater
 
 
 def reduce_to_prime_implicants(lqm):
@@ -50,7 +50,7 @@ class PyModRev:
         """
         Check if the model is consistent.
         """
-        self.inconsistent_solutions, optimization = ASPHelper.check_consistency(self.network)
+        self.inconsistent_solutions, optimization = Updater.check_consistency(self.network)
         return optimization == 0
 
     def format_observations(self):

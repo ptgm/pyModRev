@@ -370,53 +370,6 @@ class Function:
         return self.pfh_get_parents() if generalize \
             else self.pfh_get_children()
 
-    # def pfh_get_parents(self) -> List:
-    #     """
-    #     Gets the parent functions in the Hasse diagram.
-    #     """
-    #     hd = HasseDiagram(self.pfh_function.get_size())
-    #     s1, s2, s3 = hd.get_f_parents(self.pfh_function)
-    #     parents = s1.union(s2.union(s3))
-    #     result = []
-    #     # FIXME do the setters make sense?
-    #     for parent in parents:
-    #         function = Function(self.node_id)
-    #         function.distance_from_original = #             self.distance_from_original + 1
-    #         # FIXME does it make sense to put consistency equal to the one of
-    #         # the parent or should it be the equal to current function (self)?
-    #         function.son_consistent = parent.is_consistent()
-    #         # FIXME should regs be the same?
-    #         function.regulators = self.regulators
-    #         function.regulators_by_term = self.get_active_regulators(
-    #             parent.get_clauses())
-    #         function.add_pfh_function(parent)
-    #         result.append(function)
-    #     return result
-
-    # def pfh_get_children(self) -> List:
-    #     """
-    #     Gets the child functions in the Hasse diagram.
-    #     """
-    #     hd = HasseDiagram(self.pfh_function.get_size())
-    #     s1, s2, s3 = hd.get_f_children(self.pfh_function)
-    #     children = s1.union(s2.union(s3))
-    #     result = []
-    #     # FIXME do the setters make sense?
-    #     for child in children:
-    #         # TODO can/should clone_rm_add be used here?
-    #         function = Function(self.node_id)
-    #         function.distance_from_original = #             self.distance_from_original + 1
-    #         # FIXME does it make sense to put consistency equal to the one of
-    #         # the child or should it be the equal to current function (self)?
-    #         function.son_consistent = child.is_consistent()
-    #         # FIXME should regs be the same?
-    #         function.regulators = self.regulators
-    #         function.regulators_by_term = self.get_active_regulators(
-    #             child.get_clauses())
-    #         function.add_pfh_function(child)
-    #         result.append(function)
-    #     return result
-
     def get_hasse_relationships(self, relationship_type: str) -> List:
         """
         Helper function to get parent/child relationships from Hasse diagram.
