@@ -10,7 +10,7 @@ from updaters.updater import Updater
 from network.network import Network
 from network.function import Function
 from network.inconsistency_solution import InconsistencySolution
-from configuration import config, Inconsistencies
+from configuration import Inconsistencies
 
 logger = logging.getLogger(__name__)
 
