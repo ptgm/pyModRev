@@ -7,11 +7,9 @@ operations needed to restore consistency.
 import argparse
 import sys
 import os
-import inspect
 import logging
 
 from importlib import util
-from typing import List, Dict
 from network.network import Network
 from parsers.reader_factory import get_reader
 from configuration import config
@@ -88,16 +86,19 @@ def process_arguments(network: Network) -> None:
             updater_dir = os.path.join(os.path.dirname(__file__), "updaters")
             found_updater = False
             for filename in os.listdir(updater_dir):
-                if filename.endswith(".py") and filename != "__init__.py":
-                    file_path = os.path.join(updater_dir, filename)
-                    classes = load_classes_from_file(file_path)
-                    for name, cls in classes.items():
-                        if updater_name.lower() == name.lower():
-                            updater = cls()
-                            network.add_updater(updater)
-                            found_updater = True
-                            break
-                    if found_updater:
+                if filename.endswith(".py") and filename != "__init__.py" and filename != "updater.py":
+                    module_name = os.path.splitext(filename)[0]
+                    class_name = "".join(word.capitalize() for word in module_name.split("_"))
+                    
+                    if updater_name.lower() == class_name.lower():
+                        file_path = os.path.join(updater_dir, filename)
+                        spec = util.spec_from_file_location(module_name, file_path)
+                        module = util.module_from_spec(spec)
+                        spec.loader.exec_module(module)
+                        
+                        updater_class = getattr(module, class_name)
+                        network.add_updater(updater_class())
+                        found_updater = True
                         break
             
             if not found_updater:
@@ -105,17 +106,6 @@ def process_arguments(network: Network) -> None:
 
         except Exception as e:
             parser.error(str(e))
-
-
-def load_classes_from_file(file_path: str) -> Dict:
-    """
-    Dynamically loads classes from a Python file.
-    """
-    module_name = os.path.splitext(os.path.basename(file_path))[0]
-    spec = util.spec_from_file_location(module_name, file_path)
-    module = util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return {name: cls for name, cls in inspect.getmembers(module, inspect.isclass)}
 
 
 if __name__ == '__main__':
