@@ -33,14 +33,20 @@ def process_arguments(network: Network) -> None:
         epilog=f"Version: {config.version}"
     )
 
-    parser.add_argument("-m", "--model", required=True, help="Input model file.")
-    parser.add_argument("-obs", "--observations", nargs='+', required=True, metavar=('OBS', 'UPDATER'), help="List of observation file and updater pairs. Each observation must be followed by its updater type. Example: -obs obs1.lp asyncupdater obs2.lp syncupdater")
-    parser.add_argument("-cc", "--check-consistency", action="store_true", help="Check the consistency of the model and return without repairing. DEFAULT: false.")
-    parser.add_argument("--exhaustive-search", action="store_true", help="Force exhaustive search of function repair operations. DEFAULT: false.")
-    parser.add_argument("--sub-opt", action="store_true", help="Show sub-optimal solutions found. DEFAULT: false.")
-    parser.add_argument("-v", "--verbose", type=int, choices=[0, 1, 2, 3], default=2, help="Verbose level {0,1,2,3} of output. DEFAULT: 2.")
+    parser.add_argument("-m", "--model",
+                        required=True, help="Input model file.")
+    parser.add_argument("-obs", "--observations", nargs='+',
+                        required=True, metavar=('OBS', 'UPDATER'),
+                        help="List of observation file and updater pairs. Each observation must be followed by its updater type. Example: -obs obs1.lp asyncupdater obs2.lp syncupdater")
+    parser.add_argument("-cc", "--check-consistency", action="store_true",
+                        help="Check the consistency of the model and return without repairing. DEFAULT: false.")
+    parser.add_argument("--exhaustive-search", action="store_true",
+                        help="Force exhaustive search of function repair operations. DEFAULT: false.")
+    parser.add_argument("--sub-opt", action="store_true",
+                        help="Show sub-optimal solutions found. DEFAULT: false.")
+    parser.add_argument("-v", "--verbose", type=int, choices=[0, 1, 2, 3], default=2,
+                        help="Verbose level {0,1,2,3} of output. DEFAULT: 2.")
     parser.add_argument("-d", "--debug", action="store_true", help="Enable debug mode.")
-    # parser.add_argument("--support", "-su", action="store_true", help="Support values for each variable.") # Not used in old logic
 
     args = parser.parse_args()
 
@@ -60,53 +66,38 @@ def process_arguments(network: Network) -> None:
     if len(obs_args) % 2 != 0:
         parser.error("Expected an even number of arguments for --observations (pairs of obs_file and updater_name)")
 
+    # Load updaters dynamically from updaters/ directory
+    updaters = {}
+    updater_dir = os.path.join(os.path.dirname(__file__), "updaters")
+    for filename in os.listdir(updater_dir):
+        if filename.endswith(".py") and filename not in ("__init__.py", "updater.py", "time_series_updater.py"):
+            module_name = os.path.splitext(filename)[0]
+            class_name = "".join(word.capitalize() for word in module_name.split("_"))
+            file_path = os.path.join(updater_dir, filename)
+            # Load module dynamically
+            spec = util.spec_from_file_location(module_name, file_path)
+            module = util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            # Get class from module
+            updater_class = getattr(module, class_name)()
+            # Add class to updaters dictionary
+            updaters[module_name.replace('_','')] = updater_class
+
     for i in range(0, len(obs_args), 2):
         obs_path = obs_args[i]
         updater_name = obs_args[i+1]
-        
-        network.add_observation_file(obs_path)
-        
+
         try:
-            if updater_name.lower() != SteadyStateUpdater.__name__.lower():
-                network.has_ts_obs = True
-                if updater_name.lower() == SyncUpdater.__name__.lower():
-                    network.add_updater_name('SyncUpdater')
-                elif updater_name.lower() == AsyncUpdater.__name__.lower():
-                    network.add_updater_name('AsyncUpdater')
-                elif updater_name.lower() == CompleteUpdater.__name__.lower():
-                    network.add_updater_name('CompleteUpdater')
-                else:
-                    raise Exception(f"Unknown non-steady state updater type encountered: {updater_name}")
-                
-                if len(network.updaters_name) > 1:
-                    raise Exception(f"Conflicting updater types detected: {', '.join(network.updaters_name)} cannot coexist.")
-            else:
-                network.has_ss_obs = True
-
-            updater_dir = os.path.join(os.path.dirname(__file__), "updaters")
-            found_updater = False
-            for filename in os.listdir(updater_dir):
-                if filename.endswith(".py") and filename != "__init__.py" and filename != "updater.py":
-                    module_name = os.path.splitext(filename)[0]
-                    class_name = "".join(word.capitalize() for word in module_name.split("_"))
-                    
-                    if updater_name.lower() == class_name.lower():
-                        file_path = os.path.join(updater_dir, filename)
-                        spec = util.spec_from_file_location(module_name, file_path)
-                        module = util.module_from_spec(spec)
-                        spec.loader.exec_module(module)
-                        
-                        updater_class = getattr(module, class_name)
-                        network.add_updater(updater_class())
-                        found_updater = True
-                        break
-            
-            if not found_updater:
+            network.add_observation_file(obs_path)
+            if updater_name not in updaters:
                 raise Exception(f"Updater '{updater_name}' not found in updaters directory")
-
+            network.add_updater(updaters[updater_name])
+            if updater_name == 'steadystateupdater':
+                network.has_ss_obs = True
+            else:
+                network.has_ts_obs = True
         except Exception as e:
             parser.error(str(e))
-
 
 if __name__ == '__main__':
     network = Network()
