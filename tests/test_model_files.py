@@ -2,7 +2,7 @@
 Integration test suite that replicates scripts/run_tests.sh using pytest.
 
 Each test case:
-1. Discovers an example directory with model.lp, observation files, and output.txt
+1. Discovers an example directory with model.*, observation files, and output.txt
 2. Runs `main.py` via subprocess (using the venv with all dependencies)
 3. Compares the output against output.txt using scripts/compare_outputs.py
 """
@@ -13,12 +13,12 @@ import os
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
-
+SUPPORTED_EXTENSIONS = {".lp", ".bnet", ".ginml", ".zginml"}
 
 def discover_examples():
     """
     Finds all example directories (examples/*/*/) that contain:
-    - model.lp
+    - model.* (where * is a supported extension)
     - at least one observation .lp file (not model.lp)
     - output.txt
     """
@@ -31,34 +31,41 @@ def discover_examples():
         if category_dir.is_dir():
             for example_dir in sorted(category_dir.iterdir()):
                 if example_dir.is_dir():
-                    model_lp = example_dir / "model.lp"
                     output_txt = example_dir / "output.txt"
+                    if not output_txt.exists():
+                        continue
 
-                    if model_lp.exists() and output_txt.exists():
+                    model_files = []
+                    for ext in SUPPORTED_EXTENSIONS:
+                        candidate = example_dir / f"model{ext}"
+                        if candidate.exists():
+                            model_files.append(candidate)
+
+                    if model_files:
                         obs_files = [
                             f for f in example_dir.iterdir()
                             if f.suffix == ".lp" and f.name != "model.lp"
                         ]
                         if obs_files:
-                            valid_dirs.append(example_dir)
+                            for mf in model_files:
+                                valid_dirs.append((example_dir, mf))
 
     return valid_dirs
 
-
 def pytest_generate_tests(metafunc):
     """Dynamically parametrize tests from example directories."""
-    if "example_dir" in metafunc.fixturenames:
-        example_dirs = discover_examples()
-        ids = [str(d.relative_to(PROJECT_ROOT)) for d in example_dirs]
-        metafunc.parametrize("example_dir", example_dirs, ids=ids)
+    if "example_data" in metafunc.fixturenames:
+        examples = discover_examples()
+        ids = [f"{d[0].relative_to(PROJECT_ROOT)}/{d[1].name}" for d in examples]
+        metafunc.parametrize("example_data", examples, ids=ids)
 
-
-def test_example_output(example_dir: Path, venv_python: str):
+def test_example_output(example_data, venv_python: str):
     """
     Runs main.py on the example directory and compares output
     against the expected output.txt using compare_outputs.py.
     """
-    model_file = str(example_dir / "model.lp")
+    example_dir, model_file_path = example_data
+    model_file = str(model_file_path)
     output_txt = str(example_dir / "output.txt")
 
     # Build observation arguments (same logic as run_tests.sh)
@@ -96,7 +103,10 @@ def test_example_output(example_dir: Path, venv_python: str):
         # compare_outputs.py prints differences to stdout if outputs diverge
         assert cmp_result.stdout.strip() == "", (
             f"Output mismatch for {example_dir.relative_to(PROJECT_ROOT)}:\n"
-            f"{cmp_result.stdout}"
+            f"{cmp_result.stdout}\n"
+            f"---\n"
+            f"Command run: {' '.join(cmd)}\n"
+            f"Process stderr: {result.stderr}\n"
         )
     finally:
         os.unlink(tmp_path)
