@@ -51,9 +51,10 @@ class UpdateType(Enum):
 @dataclass
 class Configuration:
     """Class representing the configuration settings for the system"""
-    verbose: int = 2
     name: str = 'pyModRev'
     version: str = '1.1.0'
+    task: str = 'r'
+    verbose: int = 2
     update: UpdateType = UpdateType.ASYNC  # Setting the update type to ASYNC
     debug: bool = False
     check_asp: bool = True  # Use ASP consistency check program

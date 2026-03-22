@@ -225,58 +225,45 @@ class InconsistencySolution:
         if target:
             if not target.repaired:
                 self.n_topology_changes += repair_set.n_topology_changes
-                self.n_ar_operations += \
-                    repair_set.n_add_remove_operations
-                self.n_e_operations += \
-                    repair_set.n_flip_edges_operations
-                self.n_repair_operations += \
-                    repair_set.n_repair_operations
+                self.n_ar_operations += repair_set.n_add_remove_operations
+                self.n_e_operations += repair_set.n_flip_edges_operations
+                self.n_repair_operations += repair_set.n_repair_operations
             else:
-                if repair_set.n_add_remove_operations > \
-                        target.n_add_remove_operations:
+                if repair_set.n_add_remove_operations > target.n_add_remove_operations:
                     return
-                if repair_set.n_add_remove_operations == \
-                        target.n_add_remove_operations and \
-                        repair_set.n_flip_edges_operations > \
-                        target.n_flip_edges_operations:
+                if repair_set.n_add_remove_operations == target.n_add_remove_operations and \
+                        repair_set.n_flip_edges_operations > target.n_flip_edges_operations:
                     return
-                if repair_set.n_add_remove_operations == \
-                        target.n_add_remove_operations and \
-                        repair_set.n_flip_edges_operations == \
-                        target.n_flip_edges_operations and \
-                        repair_set.n_repair_operations > \
-                        target.n_repair_operations:
+                if repair_set.n_add_remove_operations == target.n_add_remove_operations and \
+                        repair_set.n_flip_edges_operations == target.n_flip_edges_operations and \
+                        repair_set.n_repair_operations > target.n_repair_operations:
                     return
-                if repair_set.n_repair_operations < \
-                        target.n_repair_operations:
+                if repair_set.n_repair_operations < target.n_repair_operations:
                     self.n_topology_changes -= target.n_topology_changes
-                    self.n_topology_changes += \
-                        repair_set.n_topology_changes
-                    self.n_ar_operations -= \
-                        target.n_add_remove_operations
-                    self.n_ar_operations += \
-                        repair_set.n_add_remove_operations
-                    self.n_e_operations -= \
-                        target.n_flip_edges_operations
-                    self.n_e_operations += \
-                        repair_set.n_flip_edges_operations
-                    self.n_repair_operations -= \
-                        target.n_repair_operations
-                    self.n_repair_operations += \
-                        repair_set.n_repair_operations
+                    self.n_topology_changes += repair_set.n_topology_changes
+                    self.n_ar_operations -= target.n_add_remove_operations
+                    self.n_ar_operations += repair_set.n_add_remove_operations
+                    self.n_e_operations -= target.n_flip_edges_operations
+                    self.n_e_operations += repair_set.n_flip_edges_operations
+                    self.n_repair_operations -= target.n_repair_operations
+                    self.n_repair_operations += repair_set.n_repair_operations
             target.add_repair_set(repair_set)
 
     def print_solution(self, print_all) -> None:
         """
-        Prints the solution in a human-readable format based on the specified
-        verbosity level.
+        Prints the solution based on the specified verbosity level.
         """
-        if config.verbose < 2:
-            self.print_parsable_solution()
-            return
-        if config.verbose == 3:
-            self.print_json_solution(print_all)
-            return
+        if config.verbose == 0:
+            self.print_compact_v0_solution(print_all)
+        elif config.verbose == 1:
+            self.print_json_v1_solution(print_all)
+        else:
+            self.print_human_v2_solution(print_all)
+
+    def print_human_v2_solution(self, print_all) -> None:
+        """
+        Prints the solution in a human-readable format.
+        """
         print(f"### Found solution with {self.n_repair_operations} repair operations.")
         for i_node in self.inconsistent_nodes.values():
             print(f"\tInconsistent node {i_node.identifier}.")
@@ -306,61 +293,46 @@ class InconsistencySolution:
                     for _id, value in ids.items():
                         print(f"\t\t\t\t{_id} => {value}")
 
-    def print_parsable_solution(self) -> None:
+    def print_compact_v0_solution(self, print_all) -> None:
         """
-        Prints the solution in a parsable format based on the specified
-        verbosity level.
+        Prints the solution in a compact format.
         """
-        if config.verbose > 0:
-            print("[", end="")
         first_node = True
         for i_node in self.inconsistent_nodes.values():
             if not first_node:
-                print(";" if config.verbose > 0 else "/", end="")
+                print("/", end="")
             first_node = False
             print(i_node.identifier, end="")
-            print(":{" if config.verbose > 0 else "@", end="")
+            print("@", end="")
             first_repair = True
             for repair in i_node.repair_sets:
                 if not first_repair:
-                    print(";" if config.verbose > 0 else ":", end="")
+                    print(":", end="")
                 first_repair = False
-                if config.verbose > 0:
-                    print("{", end="")
                 first = True
                 for added_edge in repair.added_edges:
                     if not first:
-                        print(";" if config.verbose > 0 else ":", end="")
+                        print(":", end="")
                     first = False
-                    print(f"A:({added_edge.start_node.identifier},{added_edge.end_node.identifier},{added_edge.sign})" if config.verbose > 0
-                          else f"A,{added_edge.start_node.identifier},{added_edge.end_node.identifier},{added_edge.sign}", end="")
+                    print(f"A,{added_edge.start_node.identifier},{added_edge.end_node.identifier},{added_edge.sign}", end="")
                 for removed_edge in repair.removed_edges:
                     if not first:
-                        print(";" if config.verbose > 0 else ":", end="")
+                        print(":", end="")
                     first = False
-                    print(f"R:({removed_edge.start_node.identifier},{removed_edge.end_node.identifier})" if config.verbose > 0
-                          else f"R,{removed_edge.start_node.identifier},{removed_edge.end_node.identifier}", end="")
+                    print(f"R,{removed_edge.start_node.identifier},{removed_edge.end_node.identifier}", end="")
                 for flipped_edge in repair.flipped_edges:
                     if not first:
-                        print(";" if config.verbose > 0 else ":", end="")
+                        print(":", end="")
                     first = False
-                    print(f"E:({flipped_edge.start_node.identifier},{flipped_edge.end_node.identifier})" if config.verbose > 0
-                          else f"E,{flipped_edge.start_node.identifier},{flipped_edge.end_node.identifier}", end="")
+                    print(f"E,{flipped_edge.start_node.identifier},{flipped_edge.end_node.identifier}", end="")
                 for repaired_function in repair.repaired_functions:
                     if not first:
-                        print(";" if config.verbose > 0 else ":", end="")
+                        print(":", end="")
                     first = False
-                    print(f"F:{repaired_function.print_function()}" if config.verbose > 0
-                          else f"F,{repaired_function.print_function()}", end="")
-                if config.verbose > 0:
-                    print("}", end="")
-            if config.verbose > 0:
-                print("}", end="")
-        if config.verbose > 0:
-            print("]", end="")
+                    print(f"F,{repaired_function.print_function()}", end="")
         print()
 
-    def print_json_solution(self, print_all):
+    def print_json_v1_solution(self, print_all):
         """
         Prints the solution in JSON format.
         """
@@ -417,25 +389,32 @@ class InconsistencySolution:
             result["node_repairs"].append(node_data)
         print(json.dumps(result, indent=4))
 
-    def print_inconsistency(self, prefix):
+    def print_inconsistency(self) -> str:
         """
-        Prints the inconsistency details for the solution.
+        Returns the inconsistency details for the solution,
+        based on the specified verbosity level (compact/json/human-readable).
         """
-        print(f'{prefix}"nodes": [', end="")
-        first = True
-        for i_node in self.inconsistent_nodes.values():
-            if first:
-                first = False
-            else:
-                print(",", end="")
-            print(f'"{i_node.identifier.replace(chr(34), "")}"', end="")
-        print("],")
-        print(f'{prefix}"profiles": [', end="")
-        first = True
-        for i_profile in self.inconsistent_profiles:
-            if first:
-                first = False
-            else:
-                print(",", end="")
-            print(f'"{i_profile.replace(chr(34), "")}"', end="")
-        print("]")
+        result = ""
+        if config.verbose == 0:
+            # compact mode
+            result += 'N[' + ",".join([f'{i_node.identifier.replace(chr(34), "")}' \
+                    for i_node in self.inconsistent_nodes.values()]) + ']'
+            result += ';P[' + ",".join([f'{i_profile.replace(chr(34), "")}' \
+                for i_profile in self.inconsistent_profiles]) + ']'
+        elif config.verbose == 1:
+            # json mode
+            result += '"nodes": [' + \
+                ",".join([f'"{i_node.identifier.replace(chr(34), "")}"' \
+                for i_node in self.inconsistent_nodes.values()]) + '], ' + \
+                '"profiles": [' + \
+                ",".join([f'"{i_profile.replace(chr(34), "")}"' \
+                for i_profile in self.inconsistent_profiles]) + ']'
+        else:
+            # human mode
+            result += '  node(s) needing repair: ' + \
+                ", ".join([f'"{i_node.identifier.replace(chr(34), "")}"' \
+                    for i_node in self.inconsistent_nodes.values()]) + '\n'
+            result += '  present in profile(s): ' + \
+                ", ".join([f'"{i_profile.replace(chr(34), "")}"' \
+                    for i_profile in self.inconsistent_profiles])
+        return result

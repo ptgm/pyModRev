@@ -18,6 +18,8 @@ from updaters.sync_updater import SyncUpdater
 from updaters.steady_state_updater import SteadyStateUpdater
 from updaters.complete_updater import CompleteUpdater
 from repair.engine import model_revision
+from repair.consistency import check_consistency
+from repair.engine import print_consistency
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -29,7 +31,7 @@ def process_arguments(network: Network) -> None:
     """
     parser = argparse.ArgumentParser(
         description="Model Revision program. Given a model and a set of observations, it determines if the model is consistent. If not, it computes all the minimum number of repair operations in order to render the model consistent.",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
+        formatter_class=argparse.RawTextHelpFormatter,
         epilog=f"Version: {config.version}"
     )
 
@@ -37,22 +39,30 @@ def process_arguments(network: Network) -> None:
                         required=True, help="Input model file.")
     parser.add_argument("-obs", "--observations", nargs='+',
                         required=True, metavar=('OBS', 'UPDATER'),
-                        help="List of observation file and updater pairs. Each observation must be followed by its updater type. Example: -obs obs1.lp asyncupdater obs2.lp syncupdater")
-    parser.add_argument("-cc", "--check-consistency", action="store_true",
-                        help="Check the consistency of the model and return without repairing. DEFAULT: false.")
+                        help="""List of observation files and updater pairs.
+Each observation must be followed by its updater type. 
+Example: -obs obs1.lp asyncupdater obs2.lp syncupdater""")
+    parser.add_argument('-t', '--task', choices=['c', 'r', 'm'], required=True,
+                        help="""Specify the task to perform (default=r):
+   c - check for consistency,
+   r - get repairs,
+   m - get repaired models""")
     parser.add_argument("--exhaustive-search", action="store_true",
-                        help="Force exhaustive search of function repair operations. DEFAULT: false.")
+                        help="Force exhaustive search of function repair operations (default=false).")
     parser.add_argument("--sub-opt", action="store_true",
-                        help="Show sub-optimal solutions found. DEFAULT: false.")
-    parser.add_argument("-v", "--verbose", type=int, choices=[0, 1, 2, 3], default=2,
-                        help="Verbose level {0,1,2,3} of output. DEFAULT: 2.")
+                        help="Show sub-optimal solutions found (default=false).")
+    parser.add_argument("-v", "--verbose", type=int, choices=[0, 1, 2], default=2,
+                        help="""Specify output verbose level (default=2):
+    0 - compact format
+    1 - json format
+    2 - human-readable format""")
     parser.add_argument("-d", "--debug", action="store_true", help="Enable debug mode.")
 
     args = parser.parse_args()
 
     # Apply arguments to config and network
     network.input_file_network = args.model
-    config.check_consistency = args.check_consistency
+    config.task = args.task
     config.force_optimum = args.exhaustive_search
     config.show_solution_for_each_inconsistency = args.sub_opt
     config.verbose = args.verbose
@@ -64,7 +74,7 @@ def process_arguments(network: Network) -> None:
     
     obs_args = args.observations
     if len(obs_args) % 2 != 0:
-        parser.error("Expected an even number of arguments for --observations (pairs of obs_file and updater_name)")
+        parser.error("Expected an even number of arguments for -obs (pairs of obs_file and updater_name)")
 
     # Load updaters dynamically from updaters/ directory
     updaters = {}
@@ -113,5 +123,13 @@ if __name__ == '__main__':
 
     if parse < 1 and not config.ignore_warnings:
         logger.error('Model definition with errors. Check documentation for input definition details.')
-    else:
-        model_revision(network)
+        sys.exit(1)
+
+    # Check consistency
+    f_inconsistencies, optimization = check_consistency(network)
+    if config.task == 'c' or optimization == 0:
+        print_consistency(f_inconsistencies, optimization)
+        sys.exit(0)
+
+    # Model revision
+    model_revision(network, f_inconsistencies, optimization)

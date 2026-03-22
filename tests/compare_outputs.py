@@ -48,7 +48,7 @@ def parse_interaction_line(node, chunk):
 def parse_file(filepath):
     with open(filepath, 'r') as f:
         content = f.read().strip()
-    if 'network is consistent' in content:
+    if 'Consistent!' in content:
         return content
 
     # Split by the main separator '/' between nodes
@@ -71,7 +71,7 @@ def parse_file(filepath):
 
 def main():
     if len(sys.argv) != 3:
-        print(f'Usage: python {sys.argv[0]} <modrev_file> <pymodrev_file>')
+        print(f'Usage: python {sys.argv[0]} <pymodrev_output1> <pymodrev_output2>')
         sys.exit(1)
     file1 = sys.argv[-2]
     file2 = sys.argv[-1]

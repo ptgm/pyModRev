@@ -17,7 +17,10 @@ from configuration import config
 logger = logging.getLogger(__name__)
 
 
-def model_revision(network: Network) -> None:
+def model_revision(
+    network: Network,
+    f_inconsistencies: List[InconsistencySolution],
+    optimization: int) -> None:
     """
     Analyze and revise a given network model for consistency.
     Procedure:
@@ -25,22 +28,9 @@ def model_revision(network: Network) -> None:
         2nd - tries to flip the sign of the edges
         3rd - tries to add or remove edges
     """
-    optimization = -2
-    f_inconsistencies, optimization = check_consistency(network)
-    if config.check_consistency:
-        print_consistency(f_inconsistencies, optimization)
-        return
-
     if optimization < 0:
         logger.error("It is not possible to repair this network for now.")
         logger.error("This may occur if there is at least one node for which from the same input two different outputs are expected (non-deterministic function).")
-        return
-
-    if optimization == 0:
-        if config.verbose == 3:
-            print_consistency(f_inconsistencies, optimization)
-            return
-        print("This network is consistent!")
         return
 
     logger.debug(f"Found {len(f_inconsistencies)} solution(s) with {len(f_inconsistencies[0].inconsistent_nodes)} inconsistent node(s)")
@@ -83,25 +73,39 @@ def model_revision(network: Network) -> None:
                         print("(Sub-Optimal Solution)")
                 inconsistency.print_solution(True)
     else:
-        best_solution.print_solution(True)
+        best_solution.print_solution(True) # TODO: passar TRUE aqui ?
 
 
 def print_consistency(
         inconsistencies: List[InconsistencySolution],
         optimization: int) -> None:
     """
-    Print the consistency status of the network in a structured JSON-like
-    format.
+    Print the consistency status of the network in three verbose levels: 
+    compact, json and human-readable.
     """
-    print("{")
-    print(f'\t"consistent": {"true" if optimization == 0 else "false,"}')
-    if optimization != 0:
-        print('\t"inconsistencies": [', end="")
-        for i, inconsistency in enumerate(inconsistencies):
-            if i > 0:
-                print(",", end="")
-            print("\n\t\t{", end="")
-            inconsistency.print_inconsistency("\t\t\t")
-            print("\n\t\t}", end="")
-        print("\n\t]")
-    print("}")
+    if optimization == 0:
+        # compact level
+        if config.verbose == 0: print('Consistent!')
+        # json level
+        elif config.verbose == 1: print('{"consistent": true}')
+        # human-readable level
+        else: print("This network is consistent!")
+        return
+    # else, the network is inconsistent
+    if config.verbose == 0:
+        # compact level
+        print('Inconsistent!')
+        for inconsistency in inconsistencies:
+            print(" " + inconsistency.print_inconsistency())
+    elif config.verbose == 1:
+        # json level
+        print('{\n  "consistent": false,')
+        print('  "inconsistencies": [')
+        for inconsistency in inconsistencies:
+            print("    {" + inconsistency.print_inconsistency() + "},")
+        print("  ]\n}")
+    # else, human-readable level
+    else:
+        print("This network is inconsistent!")
+        for inconsistency in inconsistencies:
+            print(inconsistency.print_inconsistency())
