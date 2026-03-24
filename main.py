@@ -11,15 +11,12 @@ import logging
 
 from importlib import util
 from network.network import Network
-from parsers.reader_factory import get_reader
+from parsers.parser_factory import get_parser
 from configuration import config
-from updaters.async_updater import AsyncUpdater
-from updaters.sync_updater import SyncUpdater
-from updaters.steady_state_updater import SteadyStateUpdater
-from updaters.complete_updater import CompleteUpdater
 from repair.engine import model_revision
 from repair.consistency import check_consistency
 from repair.engine import print_consistency
+from repair.repair import apply_repair
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -44,13 +41,16 @@ Each observation must be followed by its updater type.
 Example: -obs obs1.lp asyncupdater obs2.lp syncupdater""")
     parser.add_argument('-t', '--task', choices=['c', 'r', 'm'], required=True,
                         help="""Specify the task to perform (default=r):
-   c - check for consistency,
-   r - get repairs,
+   c - check for consistency
+   r - get repairs
    m - get repaired models""")
     parser.add_argument("--exhaustive-search", action="store_true",
                         help="Force exhaustive search of function repair operations (default=false).")
     parser.add_argument("--sub-opt", action="store_true",
                         help="Show sub-optimal solutions found (default=false).")
+    parser.add_argument("--all-opt", action="store_true",
+                        help="""Computes all optimal solutions (default=true).
+Stops at first optimal solution if false.""")
     parser.add_argument("-v", "--verbose", type=int, choices=[0, 1, 2], default=2,
                         help="""Specify output verbose level (default=2):
     0 - compact format
@@ -115,8 +115,8 @@ if __name__ == '__main__':
     
     # Delegate parsing to the correct reader based on file extension
     try:
-        reader = get_reader(network.input_file_network)
-        parse = reader.read(network, network.input_file_network)
+        parser = get_parser(network.input_file_network)
+        parse = parser.read(network, network.input_file_network)
     except ValueError as e:
         logger.error(str(e))
         sys.exit(1)
@@ -132,4 +132,17 @@ if __name__ == '__main__':
         sys.exit(0)
 
     # Model revision
-    model_revision(network, f_inconsistencies, optimization)
+    repairs2apply = model_revision(network, f_inconsistencies, optimization)
+    if config.task == 'm':
+        import copy
+        # Apply repairs to the network and write the file
+        total_models = len(repairs2apply)
+        padding = len(str(total_models))
+        prefix, ext = os.path.splitext(network.input_file_network)
+        for i, repair in enumerate(repairs2apply):
+            newNetwork = copy.deepcopy(network)
+            # 1. apply repair to newNetwork
+            apply_repair(newNetwork, repair)
+            # 2. write network to file
+            filename = f"{prefix}_{str(i+1).zfill(padding)}{ext}"
+            parser.write(newNetwork, filename)

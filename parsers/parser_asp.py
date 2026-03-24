@@ -1,12 +1,12 @@
 import logging
 from network.network import Network
-from parsers.network_reader import NetworkReader
+from parsers.network_parser import NetworkParser
 
 logger = logging.getLogger(__name__)
 
-class ASPReader(NetworkReader):
+class ASPParser(NetworkParser):
     """
-    Reads Answer Set Programming (.lp) model definitions into a Network object.
+    Reads and writes Answer Set Programming (.lp) model definitions.
     """
 
     @staticmethod
@@ -180,3 +180,57 @@ class ASPReader(NetworkReader):
         except IOError as exc:
             raise ValueError('ERROR!\tCannot open file ' + filepath) from exc
         return result
+
+    @staticmethod
+    def to_asp_facts(network: Network) -> str:
+        """
+        Encodes the network as ASP facts compatible with the clingo rules.
+
+        Generates:
+            - vertex(node).  for each node
+            - fixed(node).   for each fixed node
+            - edge(start, end, sign).  for each edge
+            - functionOr(node, term_id).  for each term in the node's function
+            - functionAnd(node, term_id, regulator).  for each regulator in each term
+
+        Returns:
+            A string containing all ASP facts.
+        """
+        facts = []
+
+        # Emit vertex and fixed facts
+        for node_id, node in network.nodes.items():
+            facts.append(f"vertex({node_id}).")
+            if node.is_fixed:
+                facts.append(f"fixed({node_id}).")
+
+        # Emit edge facts
+        for node_id, edge_list in network.graph.items():
+            for edge in edge_list:
+                facts.append(
+                    f"edge({edge.start_node.identifier},"
+                    f"{edge.end_node.identifier},{edge.sign})."
+                )
+
+        # Emit function facts (functionOr and functionAnd)
+        for node_id, node in network.nodes.items():
+            func = node.function
+            if func.regulators_by_term:
+                for term_id, regulators in func.regulators_by_term.items():
+                    facts.append(f"functionOr({node_id},{term_id}).")
+                    for reg in regulators:
+                        facts.append(
+                            f"functionAnd({node_id},{term_id},{reg})."
+                        )
+
+        return "\n".join(facts) + "\n" if facts else ""
+
+    def write(self, network: Network, filename: str) -> None:
+        """
+        Write the provided Network object to an ASP (.lp) file.
+        """
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write(self.to_asp_facts(network))
+        except IOError as exc:
+            raise ValueError(f"ERROR!\tCannot write to file {filename}") from exc

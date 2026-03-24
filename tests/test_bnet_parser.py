@@ -1,5 +1,5 @@
 """
-Unit tests for the BnetReader parser.
+Unit tests for the BnetParser.
 
 Tests cover: identity, negation→positive, AND, OR, XOR→monotone,
 degenerate variable removal, parenthesised expressions, constants,
@@ -10,12 +10,12 @@ import os
 import tempfile
 import pytest
 from network.network import Network
-from parsers.bnet_reader import BnetReader
+from parsers.parser_bnet import BnetParser
 
 
 @pytest.fixture
 def reader():
-    return BnetReader()
+    return BnetParser()
 
 
 @pytest.fixture

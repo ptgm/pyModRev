@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from network.network import Network
 
-class NetworkReader(ABC):
+class NetworkParser(ABC):
     """
-    Abstract base class for reading network models into a Network object.
-    Subclasses must implement the 'read' method for specific file formats.
+    Abstract base class for reading and writing network models.
+    Subclasses must implement 'read' and 'write' for specific file formats.
     """
     @abstractmethod
     def read(self, network: Network, filepath: str) -> int:
@@ -17,5 +17,16 @@ class NetworkReader(ABC):
             
         Returns:
             int: 1 on success, -1 or -2 on failure/errors.
+        """
+        pass
+
+    @abstractmethod
+    def write(self, network: Network, filename: str) -> None:
+        """
+        Write the provided Network object to a file.
+        
+        Args:
+            network: The Network object to write.
+            filename: The path to the output file.
         """
         pass

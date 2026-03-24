@@ -1,12 +1,12 @@
 """
-BNet reader that delegates boolean expression parsing to the shared
+BNet parser that delegates boolean expression parsing to the shared
 boolean_expression module.
 """
 
 import logging
 
 from network.network import Network
-from parsers.network_reader import NetworkReader
+from parsers.network_parser import NetworkParser
 from parsers.boolean_expression import (
     parse_and_minimise_expression,
     add_positive_autoregulation
@@ -15,10 +15,11 @@ from parsers.boolean_expression import (
 logger = logging.getLogger(__name__)
 
 
-class BnetReader(NetworkReader):
+class BnetParser(NetworkParser):
     """
-    Reads .bnet files and converts each boolean expression into a monotone
-    non-degenerate form using Quine-McCluskey minimisation (via shared parser).
+    Reads and writes .bnet files. Converts each boolean expression into a
+    monotone non-degenerate form using Quine-McCluskey minimisation (via
+    shared parser).
     """
 
     HEADER_TOKENS = {'targets', 'factors'}
@@ -106,4 +107,48 @@ class BnetReader(NetworkReader):
     def _is_header_line(line: str) -> bool:
         """Detect the optional bnet header line: 'targets, factors'."""
         parts = [p.strip().lower() for p in line.split(',')]
-        return set(parts) == BnetReader.HEADER_TOKENS
+        return set(parts) == BnetParser.HEADER_TOKENS
+
+    def write(self, network: Network, filename: str) -> None:
+        """
+        Write the provided Network object to a .bnet file.
+        """
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write("targets, factors\n")
+                # Sort nodes by identifier for deterministic output
+                for node_id in sorted(network.nodes.keys()):
+                    node = network.nodes[node_id]
+                    func = node.function
+                    
+                    if not func.regulators_by_term:
+                        # If no regulators, it might be a constant but 
+                        # BnetParser.read maps constants to self-loops.
+                        # However, for robustness, we handle empty terms.
+                        # Usually, every node in this system has at least 
+                        # one term (even if it's just a self-loop).
+                        continue
+                        
+                    terms_str = []
+                    # regulators_by_term is {term_id: [reg1, reg2, ...]}
+                    # term_id starts from 1
+                    for term_id in sorted(func.regulators_by_term.keys()):
+                        regulators = func.regulators_by_term[term_id]
+                        reg_strs = []
+                        for reg in regulators:
+                            # Determine sign from the edge in the network
+                            try:
+                                edge = network.get_edge(reg, node_id)
+                                prefix = "!" if edge.sign == 0 else ""
+                            except Exception:
+                                # Fallback if edge not found (shouldn't happen)
+                                prefix = ""
+                            reg_strs.append(f"{prefix}{reg}")
+                        
+                        terms_str.append(" & ".join(reg_strs))
+                    
+                    expression = " | ".join(terms_str)
+                    f.write(f"{node_id}, {expression}\n")
+                    
+        except IOError as exc:
+            raise ValueError(f"ERROR!\tCannot write to file {filename}") from exc

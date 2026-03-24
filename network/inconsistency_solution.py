@@ -249,51 +249,18 @@ class InconsistencySolution:
                     self.n_repair_operations += repair_set.n_repair_operations
             target.add_repair_set(repair_set)
 
-    def print_solution(self, print_all) -> None:
+    def print_solution(self) -> None:
         """
         Prints the solution based on the specified verbosity level.
         """
         if config.verbose == 0:
-            self.print_compact_v0_solution(print_all)
+            self.print_compact_v0_solution()
         elif config.verbose == 1:
-            self.print_json_v1_solution(print_all)
+            self.print_json_v1_solution()
         else:
-            self.print_human_v2_solution(print_all)
+            self.print_human_v2_solution()
 
-    def print_human_v2_solution(self, print_all) -> None:
-        """
-        Prints the solution in a human-readable format.
-        """
-        print(f"### Found solution with {self.n_repair_operations} repair operations.")
-        for i_node in self.inconsistent_nodes.values():
-            print(f"\tInconsistent node {i_node.identifier}.")
-            i = 1
-            for repair in i_node.repair_sets:
-                if print_all:
-                    print(f"\t\tRepair #{i}:")
-                    i += 1
-                for repaired_function in repair.repaired_functions:
-                    print(f"\t\t\tChange function of {repaired_function.node_id} to {repaired_function.print_function()}.")
-                for flipped_edge in repair.flipped_edges:
-                    print(f"\t\t\tFlip sign of edge ({flipped_edge.start_node.identifier},{flipped_edge.end_node.identifier}).")
-                for removed_edge in repair.removed_edges:
-                    print(f"\t\t\tRemove edge ({removed_edge.start_node.identifier},{removed_edge.end_node.identifier}).")
-                for added_edge in repair.added_edges:
-                    print(f"\t\t\tAdd edge ({added_edge.start_node.identifier},{added_edge.end_node.identifier}) with sign {added_edge.sign}.")
-                if not print_all:
-                    break
-        if config.labelling:
-            print("\t### Labelling for this solution:")
-            multiple_profiles = config.multiple_profiles
-            for profile, times in self.v_label.items():
-                if multiple_profiles:
-                    print(f"\t\tProfile: {profile}")
-                for time, ids in times.items():
-                    print(f"\t\t\tTime step: {time}")
-                    for _id, value in ids.items():
-                        print(f"\t\t\t\t{_id} => {value}")
-
-    def print_compact_v0_solution(self, print_all) -> None:
+    def print_compact_v0_solution(self) -> None:
         """
         Prints the solution in a compact format.
         """
@@ -332,7 +299,7 @@ class InconsistencySolution:
                     print(f"F,{repaired_function.print_function()}", end="")
         print()
 
-    def print_json_v1_solution(self, print_all):
+    def print_json_v1_solution(self):
         """
         Prints the solution in JSON format.
         """
@@ -384,10 +351,38 @@ class InconsistencySolution:
                         "sign": added_edge.sign
                     })
                 node_data["repair_set"].append(repair_data)
-                if not print_all:
-                    break
             result["node_repairs"].append(node_data)
         print(json.dumps(result, indent=4))
+
+    def print_human_v2_solution(self) -> None:
+        """
+        Prints the solution in a human-readable format.
+        """
+        print(f"### Found solution with {self.n_repair_operations} repair operations.")
+        for i_node in self.inconsistent_nodes.values():
+            print(f"\tInconsistent node {i_node.identifier}.")
+            i = 1
+            for repair in i_node.repair_sets:
+                print(f"\t\tRepair #{i}:")
+                i += 1
+                for repaired_function in repair.repaired_functions:
+                    print(f"\t\t\tChange function of {repaired_function.node_id} to {repaired_function.print_function()}.")
+                for flipped_edge in repair.flipped_edges:
+                    print(f"\t\t\tFlip sign of edge ({flipped_edge.start_node.identifier},{flipped_edge.end_node.identifier}).")
+                for removed_edge in repair.removed_edges:
+                    print(f"\t\t\tRemove edge ({removed_edge.start_node.identifier},{removed_edge.end_node.identifier}).")
+                for added_edge in repair.added_edges:
+                    print(f"\t\t\tAdd edge ({added_edge.start_node.identifier},{added_edge.end_node.identifier}) with sign {added_edge.sign}.")
+        if config.labelling:
+            print("\t### Labelling for this solution:")
+            multiple_profiles = config.multiple_profiles
+            for profile, times in self.v_label.items():
+                if multiple_profiles:
+                    print(f"\t\tProfile: {profile}")
+                for time, ids in times.items():
+                    print(f"\t\t\tTime step: {time}")
+                    for _id, value in ids.items():
+                        print(f"\t\t\t\t{_id} => {value}")
 
     def print_inconsistency(self) -> str:
         """

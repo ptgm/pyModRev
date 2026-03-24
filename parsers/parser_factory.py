@@ -1,19 +1,19 @@
 import os
-from parsers.network_reader import NetworkReader
-from parsers.asp_reader import ASPReader
-from parsers.bnet_reader import BnetReader
-from parsers.ginml_reader import GINMLReader
+from parsers.network_parser import NetworkParser
+from parsers.parser_asp import ASPParser
+from parsers.parser_bnet import BnetParser
+from parsers.parser_ginml import GINMLParser
 
-def get_reader(filepath: str) -> NetworkReader:
+def get_parser(filepath: str) -> NetworkParser:
     """
-    Factory function to return the appropriate NetworkReader based on the
+    Factory function to return the appropriate NetworkParser based on the
     file extension of the given filepath.
     
     Args:
         filepath: The path to the network model file.
         
     Returns:
-        An instance of a subclass of NetworkReader.
+        An instance of a subclass of NetworkParser.
         
     Raises:
         ValueError: If the file extension is unsupported.
@@ -22,10 +22,10 @@ def get_reader(filepath: str) -> NetworkReader:
     ext = ext.lower()
     
     if ext == '.lp':
-        return ASPReader()
+        return ASPParser()
     elif ext == '.bnet':
-        return BnetReader()
+        return BnetParser()
     elif ext in ('.ginml', '.zginml'):
-        return GINMLReader()
+        return GINMLParser()
     else:
         raise ValueError(f"Unsupported model file extension: '{ext}'. Supported extensions are: .lp, .bnet, .ginml, .zginml")
