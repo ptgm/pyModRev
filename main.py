@@ -135,14 +135,34 @@ if __name__ == '__main__':
     repairs2apply = model_revision(network, f_inconsistencies, optimization)
     if config.task == 'm':
         import copy
-        # Apply repairs to the network and write the file
-        total_models = len(repairs2apply)
-        padding = len(str(total_models))
-        prefix, ext = os.path.splitext(network.input_file_network)
-        for i, repair in enumerate(repairs2apply):
-            newNetwork = copy.deepcopy(network)
-            # 1. apply repair to newNetwork
-            apply_repair(newNetwork, repair)
-            # 2. write network to file
-            filename = f"{prefix}_{str(i+1).zfill(padding)}{ext}"
-            parser.write(newNetwork, filename)
+        import itertools
+        
+        # 1. Collect all possible model combinations (Cartesian product of repair sets per solution)
+        all_models_to_save = []
+        for repair_sol in repairs2apply:
+            nodes_with_repairs = []
+            # Sort node IDs for deterministic output order
+            for node_id in sorted(repair_sol.inconsistent_nodes.keys()):
+                i_node = repair_sol.inconsistent_nodes[node_id]
+                if i_node.repair_sets:
+                    node_options = [(node_id, rs) for rs in i_node.repair_sets]
+                    nodes_with_repairs.append(node_options)
+            
+            # Cartesian product of options across all nodes for THIS solution
+            for combination in itertools.product(*nodes_with_repairs):
+                node_repair_map = dict(combination)
+                all_models_to_save.append((repair_sol, node_repair_map))
+
+        # 2. Apply repairs and write files
+        total_models = len(all_models_to_save)
+        if total_models == 0:
+            logger.info("No repaired models to generate.")
+        else:
+            padding = len(str(total_models))
+            prefix, ext = os.path.splitext(network.input_file_network)
+            for i, (repair_sol, node_repair_map) in enumerate(all_models_to_save):
+                newNetwork = copy.deepcopy(network)
+                apply_repair(newNetwork, repair_sol, node_repair_map)
+                filename = f"{prefix}_{str(i+1).zfill(padding)}{ext}"
+                parser.write(newNetwork, filename)
+                print(f"Generated repaired model: {filename}")

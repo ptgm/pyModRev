@@ -65,7 +65,7 @@ def model_revision(
             if not inconsistency.has_impossibility \
                     and (inconsistency.compare_repairs(best_solution) >= 0
                          or show_sub_opt):
-                if show_sub_opt \
+                if show_sub_opt and config.task != 'm' \
                         and inconsistency.compare_repairs(best_solution) < 0:
                     if config.verbose < 2:
                         print("+", end="")

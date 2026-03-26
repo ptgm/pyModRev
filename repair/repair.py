@@ -13,7 +13,7 @@ from configuration import config
 
 logger = logging.getLogger(__name__)
 
-def apply_repair(network: Network, repair: InconsistencySolution) -> None:
+def apply_repair(network: Network, repair: InconsistencySolution, node_repair_map: dict = None) -> None:
     """
     This function applies a valid repair to a network.
     """
@@ -21,8 +21,12 @@ def apply_repair(network: Network, repair: InconsistencySolution) -> None:
         if not i_node.repair_sets:
             continue
 
-        # Pick the first repair set for this node (they are all equally optimal)
-        repair_set = i_node.repair_sets[0]
+        # If a specific repair map is provided, use it; otherwise default to the first repair set
+        if node_repair_map and node_id in node_repair_map:
+            repair_set = node_repair_map[node_id]
+        else:
+            # Pick the first repair set for this node (they are all equally optimal)
+            repair_set = i_node.repair_sets[0]
 
         # 1. Add edges
         for edge in repair_set.added_edges:
