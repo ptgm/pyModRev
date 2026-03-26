@@ -71,7 +71,7 @@ def test_example_output(example_data, venv_python: str):
     # Build observation arguments (same logic as run_tests.sh)
     obs_args = []
     for obs_file in sorted(example_dir.iterdir()):
-        if obs_file.suffix == ".lp" and obs_file.name != "model.lp":
+        if obs_file.suffix == ".lp" and "model" not in obs_file.name: # ignores model.ext and model_*.ext
             base = obs_file.stem           # e.g. "async_1" or "steadystate"
             typology = base.split("_")[0]   # e.g. "async" or "steadystate"
             obs_args.extend([str(obs_file), f"{typology}updater"])
