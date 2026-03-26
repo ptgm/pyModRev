@@ -48,7 +48,8 @@ def parse_op(node, op_str):
 def parse_file(filepath):
     """
     Parses a pymodrev output file into a set of repair sets.
-    Each repair set is represented as a frozenset of operations.
+    Returns a set of tuples, where each tuple is:
+    (is_suboptimal: bool, frozenset_of_repair_operations)
     """
     try:
         with open(filepath, 'r') as f:
@@ -65,35 +66,50 @@ def parse_file(filepath):
     # Remove the "Inconsistent!" header if present
     content = content.replace('Inconsistent!', '').strip()
 
-    # Split by the main separator '/' between nodes
-    raw_chunks = content.split('/')
-    parsed_data = set()
-    for chunk in raw_chunks:
-        chunk = chunk.strip()
-        if not chunk:
+    parsed_solutions = set()
+    
+    for line in content.splitlines():
+        line = line.strip()
+        if not line:
             continue
-
-        if '@' in chunk:
-            node, rest = chunk.split('@', 1)
-            # Different repair sets for the same node are separated by ';'
-            repair_sets = rest.split(';')
-            for rs_str in repair_sets:
-                if not rs_str.strip():
-                    continue
-                # Individual operations within a repair set are separated by ':'
-                ops = rs_str.split(':')
-                canonical_rs = []
-                for op in ops:
-                    if not op.strip():
-                        continue
-                    canonical_rs.append(parse_op(node, op.strip()))
-                # Store as frozenset to make it hashable and order-independent
-                parsed_data.add(frozenset(canonical_rs))
-        else:
-            # Fallback for cases like simple node lists
-            parsed_data.add(frozenset([(chunk,)]))
             
-    return parsed_data
+        is_suboptimal = False
+        if line.startswith('+'):
+            is_suboptimal = True
+            line = line[1:]
+            
+        # Split by the main separator '/' between nodes
+        raw_chunks = line.split('/')
+        parsed_data = set()
+        for chunk in raw_chunks:
+            chunk = chunk.strip()
+            if not chunk:
+                continue
+
+            if '@' in chunk:
+                node, rest = chunk.split('@', 1)
+                # Different repair sets for the same node are separated by ';'
+                repair_sets = rest.split(';')
+                for rs_str in repair_sets:
+                    if not rs_str.strip():
+                        continue
+                    # Individual operations within a repair set are separated by ':'
+                    ops = rs_str.split(':')
+                    canonical_rs = []
+                    for op in ops:
+                        if not op.strip():
+                            continue
+                        canonical_rs.append(parse_op(node, op.strip()))
+                    # Store as frozenset to make it hashable and order-independent
+                    parsed_data.add(frozenset(canonical_rs))
+            else:
+                # Fallback for cases like simple node lists
+                parsed_data.add(frozenset([(chunk,)]))
+                
+        # Store the solution along with its optimality status
+        parsed_solutions.add((is_suboptimal, frozenset(parsed_data)))
+            
+    return parsed_solutions
 
 def main():
     if len(sys.argv) != 3:
@@ -103,7 +119,7 @@ def main():
     file2 = sys.argv[-1]
 
     try:
-        # Parse both files into sets of repair sets
+        # Parse both files into sets of solutions
         data1 = parse_file(file1)
         data2 = parse_file(file2)
 
@@ -114,14 +130,15 @@ def main():
             
             if only_in_1:
                 print(f"  Only in {file1}:")
-                for rs in sorted(list(only_in_1), key=str):
-                    # Pretty print the frozenset
-                    print(f"    {sorted(list(rs), key=str)}")
+                for is_subopt, rs in sorted(list(only_in_1), key=str):
+                    prefix = "+" if is_subopt else ""
+                    print(f"    {prefix}{sorted(list(rs), key=str)}")
                     
             if only_in_2:
                 print(f"  Only in {file2}:")
-                for rs in sorted(list(only_in_2), key=str):
-                    print(f"    {sorted(list(rs), key=str)}")
+                for is_subopt, rs in sorted(list(only_in_2), key=str):
+                    prefix = "+" if is_subopt else ""
+                    print(f"    {prefix}{sorted(list(rs), key=str)}")
 
     except FileNotFoundError as e:
         print(f"Error: File not found - {e.filename}")
