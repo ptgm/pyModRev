@@ -1,6 +1,6 @@
 import pytest
-from network.inconsistent_node import InconsistentNode
-from network.repair_set import RepairSet
+from pymodrev.network.inconsistent_node import InconsistentNode
+from pymodrev.network.repair_set import RepairSet
 
 @pytest.fixture
 def nodes():

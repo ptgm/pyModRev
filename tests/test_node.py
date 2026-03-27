@@ -1,6 +1,6 @@
 import pytest
-from network.node import Node
-from network.function import Function
+from pymodrev.network.node import Node
+from pymodrev.network.function import Function
 
 def test_node_initialization():
     node = Node('test_node')

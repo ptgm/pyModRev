@@ -1,6 +1,6 @@
 import pytest
-from network.node import Node
-from network.edge import Edge
+from pymodrev.network.node import Node
+from pymodrev.network.edge import Edge
 
 @pytest.fixture
 def sample_nodes():

@@ -1,6 +1,6 @@
 import pytest
-from network.inconsistency_solution import InconsistencySolution
-from network.repair_set import RepairSet
+from pymodrev.network.inconsistency_solution import InconsistencySolution
+from pymodrev.network.repair_set import RepairSet
 
 @pytest.fixture
 def solution():

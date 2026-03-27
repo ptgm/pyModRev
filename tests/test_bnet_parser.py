@@ -9,8 +9,8 @@ header/comment/blank handling, and complex nested expressions.
 import os
 import tempfile
 import pytest
-from network.network import Network
-from parsers.parser_bnet import BnetParser
+from pymodrev.network.network import Network
+from pymodrev.parsers.parser_bnet import BnetParser
 
 
 @pytest.fixture

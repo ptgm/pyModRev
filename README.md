@@ -13,24 +13,19 @@ Built on top of the [Clingo](https://potassco.org/clingo/) ASP solver and the [`
 ---
 ### Install
 
-You need to install the following dependencies using pip: `bitarray`, `pyfunctionhood`, `clingo`.
+You can install **pymodrev** directly from source or via PyPI.
 
-If your distribution prevents you to install pip packages system-wide, the simplest way is to first create a Python environment:
-```
-$ python -m venv venv
-$ source venv/bin/activate
-```
-
-Then install the all the dependencies simply run:
-```
-$ ./venv/bin/pip install -r requirements.txt
+To install from source (when you are inside the pymodrev directory):
+```bash
+$ pip install .
 ```
 
-To test that everything is working, please run all the tests (using the created `venv` environment)
-```
-$ ./venv/bin/python -m pytest tests/ -v
+To install from PyPI:
+```bash
+$ pip install pymodrev
 ```
 
+This will automatically install dependencies like `bitarray`, `pyfunctionhood`, and `clingo`.
 
 ---
 
@@ -42,13 +37,13 @@ Boolean models can be specified using the following formats:
 * `.bnet` - using the BoolNet format (only boolean rules)
 * `.ginml` / `.zginml` - using the widely used GINsim format (conserving the model layout information)
 
-To run pyModRev with a boolean model and observations you can use `-h` to see the list of options
+To run **pymodrev**, use the following command structure:
 
 ```bash
-./venv/bin/python3 main.py -h
+$ pymodrev -h
 ```
 ```bash
-usage: main.py [-h] -m MODEL -obs OBS [UPDATER ...] -t {c,r,m} [--exhaustive-search] [--sub-opt] [--all-opt]
+usage: pymodrev [-h] -m MODEL -obs OBS [UPDATER ...] -t {c,r,m} [--exhaustive-search] [--sub-opt] [--all-opt]
                [-v {0,1,2}] [-d]
 
 options:
@@ -80,7 +75,7 @@ options:
 Using option `-t c`, `pymodrev` will report the minimal set of nodes that need to be repaired in order to make the model consistent with the given observations.
 
 ```bash
-./venv/bin/python3 main.py -m examples/boolean_cell_cycle/03/model.bnet -obs examples/boolean_cell_cycle/03/steadystate.lp steadystateupdater -t c
+$ pymodrev -m examples/boolean_cell_cycle/03/model.bnet -obs examples/boolean_cell_cycle/03/steadystate.lp steadystateupdater -t c
 ```
 ```bash
 This network is inconsistent!
@@ -93,7 +88,7 @@ This network is inconsistent!
 Using option `-t r`, `pymodrev` will report the minimal set of repair operations for the model to be consistent with the given observations.
 
 ```bash
-./venv/bin/python3 main.py -m examples/boolean_cell_cycle/03/model.bnet -obs examples/boolean_cell_cycle/03/steadystate.lp steadystateupdater -t r
+$ pymodrev -m examples/boolean_cell_cycle/03/model.bnet -obs examples/boolean_cell_cycle/03/steadystate.lp steadystateupdater -t r
 ```
 ```bash
 ### Found solution with 4 repair operations.
@@ -116,7 +111,7 @@ Using option `-t r`, `pymodrev` will report the minimal set of repair operations
 Using option `-t m`, `pymodrev` will apply the repairs to the model and write to disk the repaired models consistent with the given observations.
 
 ```bash
-./venv/bin/python3 main.py -m examples/boolean_cell_cycle/03/model.bnet -obs examples/boolean_cell_cycle/03/steadystate.lp steadystateupdater -t m
+$ pymodrev -m examples/boolean_cell_cycle/03/model.bnet -obs examples/boolean_cell_cycle/03/steadystate.lp steadystateupdater -t m
 ```
 Repaired models keep the original name followed by a number, representing the number of minimal alternative repairs.
 For example, one could have:

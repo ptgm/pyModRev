@@ -1,7 +1,7 @@
 import pytest
 from pyfunctionhood.function import Function as PFHFunction
 from pyfunctionhood.clause import Clause
-from network.function import Function
+from pymodrev.network.function import Function
 
 def test_function_initialization():
     func = Function('node_1')
@@ -67,7 +67,7 @@ def test_function_string_rep():
     assert f.print_function() == "(A && B) || (C)"
 
     # 2. With network (sign-aware)
-    from network.network import Network
+    from pymodrev.network.network import Network
     net = Network()
     A = net.add_node("A")
     B = net.add_node("B")
@@ -81,8 +81,8 @@ def test_function_string_rep():
     assert f.print_function(network=net) == "(!A && B) || (C)"
 
     # 3. With repair_set (account for flips)
-    from network.repair_set import RepairSet
-    from network.edge import Edge
+    from pymodrev.network.repair_set import RepairSet
+    from pymodrev.network.edge import Edge
     rs = RepairSet()
     # Flip A back to positive, flip B to negative
     rs.add_flipped_edge(Edge(A, node1, 0))

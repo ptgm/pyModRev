@@ -10,15 +10,15 @@ Tests cover each type of repair operation individually:
 """
 
 import pytest
-from network.network import Network
-from network.node import Node
-from network.edge import Edge
-from network.function import Function
-from network.inconsistency_solution import InconsistencySolution
-from network.inconsistent_node import InconsistentNode
-from network.repair_set import RepairSet
-from network.exceptions import EdgeNotFoundError
-from repair.repair import apply_repair
+from pymodrev.network.network import Network
+from pymodrev.network.node import Node
+from pymodrev.network.edge import Edge
+from pymodrev.network.function import Function
+from pymodrev.network.inconsistency_solution import InconsistencySolution
+from pymodrev.network.inconsistent_node import InconsistentNode
+from pymodrev.network.repair_set import RepairSet
+from pymodrev.network.exceptions import EdgeNotFoundError
+from pymodrev.repair.repair import apply_repair
 
 
 # ── Fixtures ────────────────────────────────────────────────────────────

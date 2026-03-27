@@ -1,8 +1,8 @@
 import pytest
-from network.network import Network
-from network.edge import Edge
-from network.node import Node
-from network.exceptions import EdgeNotFoundError
+from pymodrev.network.network import Network
+from pymodrev.network.edge import Edge
+from pymodrev.network.node import Node
+from pymodrev.network.exceptions import EdgeNotFoundError
 
 @pytest.fixture
 def network():

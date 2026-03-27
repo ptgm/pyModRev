@@ -1,8 +1,8 @@
 import pytest
-from network.repair_set import RepairSet
-from network.function import Function
-from network.edge import Edge
-from network.node import Node
+from pymodrev.network.repair_set import RepairSet
+from pymodrev.network.function import Function
+from pymodrev.network.edge import Edge
+from pymodrev.network.node import Node
 
 @pytest.fixture
 def repair_set():

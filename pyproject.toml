@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=61.0", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pymodrev"
+dynamic = ["version"]
+description = "Model Revision tool for computing Boolean network repair operations."
+readme = "README.md"
+requires-python = ">=3.7"
+license = {text = "MIT"}
+authors = [
+    {name = "Pedro T. Monteiro", email = "Pedro.Tiago.Monteiro@tecnico.ulisboa.pt"}
+]
+keywords = ["boolean", "revision", "repair", "network", "function"]
+classifiers = [                                                                 
+  "Programming Language :: Python",                                             
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Operating System :: OS Independent",
+  "License :: OSI Approved :: GNU Affero General Public License v3",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Software Development :: Libraries",
+]
+dependencies = [
+    "bitarray",
+    "pyfunctionhood",
+    "clingo"
+]
+
+[project.urls]
+Homepage = "https://github.com/ptgm/pymodrev"
+Repository = "https://github.com/ptgm/pymodrev"
+
+[project.scripts]
+pymodrev = "pymodrev.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["pymodrev", "pymodrev.network", "pymodrev.parsers", "pymodrev.repair", "pymodrev.updaters"]
+
+[tool.setuptools_scm]
