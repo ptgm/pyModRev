@@ -418,3 +418,19 @@ class InconsistencySolution:
                 ", ".join([f'"{i_profile.replace(chr(34), "")}"' \
                     for i_profile in self.inconsistent_profiles])
         return result
+
+    def __eq__(self, other):
+        """
+        Returns true if two inconsistency solutions have the same 
+        inconsistency nodes and the same inconsistency profiles.
+        This is not a true equality, only used to print unique inconsistencies to the user.
+        """
+        if not isinstance(other, InconsistencySolution):
+            return False
+        if set(self.inconsistent_nodes.keys()) != set(other.inconsistent_nodes.keys()):
+            return False
+        if set(self.inconsistent_profiles) != set(other.inconsistent_profiles):
+            return False
+        return True
+    def __hash__(self):
+        return hash((frozenset(self.inconsistent_nodes.keys()), frozenset(self.inconsistent_profiles.keys())))

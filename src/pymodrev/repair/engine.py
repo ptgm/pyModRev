@@ -98,21 +98,27 @@ def print_consistency(
         # human-readable level
         else: print("This network is consistent!")
         return
+
     # else, the network is inconsistent
+    # Not really printing all the inconsistency solutions
+    # Only the unique inconsistency solutions with respect to:
+    # . inconsistent nodes
+    # . inconsistent profiles
+    unique_inconsistencies = set(inconsistencies)
     if config.verbose == 0:
         # compact level
         print('Inconsistent!')
-        for inconsistency in inconsistencies:
+        for inconsistency in unique_inconsistencies:
             print(" " + inconsistency.print_inconsistency())
     elif config.verbose == 1:
         # json level
         print('{\n  "consistent": false,')
         print('  "inconsistencies": [')
-        for inconsistency in inconsistencies:
+        for inconsistency in unique_inconsistencies:
             print("    {" + inconsistency.print_inconsistency() + "},")
         print("  ]\n}")
     # else, human-readable level
     else:
         print("This network is inconsistent!")
-        for inconsistency in inconsistencies:
+        for inconsistency in unique_inconsistencies:
             print(inconsistency.print_inconsistency())
