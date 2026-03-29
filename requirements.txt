@@ -2,3 +2,5 @@ bitarray
 pyfunctionhood
 clingo
 pytest
+openpyxl
+xlrd

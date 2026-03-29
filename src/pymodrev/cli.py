@@ -17,6 +17,7 @@ from pymodrev.repair.engine import model_revision
 from pymodrev.repair.consistency import check_consistency
 from pymodrev.repair.engine import print_consistency
 from pymodrev.repair.repair import apply_repair
+from pymodrev.parsers.parser_observation import get_observation_parser
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -26,39 +27,39 @@ def process_arguments(network: Network) -> None:
     """
     Process command-line arguments and configure network accordingly.
     """
-    parser = argparse.ArgumentParser(
+    arg_parser = argparse.ArgumentParser(
         description="Model Revision program. Given a model and a set of observations, it determines if the model is consistent. If not, it computes all the minimum number of repair operations in order to render the model consistent.",
         formatter_class=argparse.RawTextHelpFormatter,
         epilog=f"Version: {config.version}"
     )
 
-    parser.add_argument("-m", "--model",
+    arg_parser.add_argument("-m", "--model",
                         required=True, help="Input model file.")
-    parser.add_argument("-obs", "--observations", nargs='+',
+    arg_parser.add_argument("-obs", "--observations", nargs='+',
                         required=True, metavar=('OBS', 'UPDATER'),
                         help="""List of observation files and updater pairs.
 Each observation must be followed by its updater type. 
 Example: -obs obs1.lp asyncupdater obs2.lp syncupdater""")
-    parser.add_argument('-t', '--task', choices=['c', 'r', 'm'], required=True,
+    arg_parser.add_argument('-t', '--task', choices=['c', 'r', 'm'], required=True,
                         help="""Specify the task to perform (default=r):
-   c - check for consistency
-   r - get repairs
-   m - get repaired models""")
-    parser.add_argument("--exhaustive-search", action="store_true",
+    c - check for consistency
+    r - get repairs
+    m - get repaired models""")
+    arg_parser.add_argument("--exhaustive-search", action="store_true",
                         help="Force exhaustive search of function repair operations (default=false).")
-    parser.add_argument("--sub-opt", action="store_true",
+    arg_parser.add_argument("--sub-opt", action="store_true",
                         help="Show sub-optimal solutions found (default=false).")
-    parser.add_argument("--all-opt", action="store_true",
+    arg_parser.add_argument("--all-opt", action="store_true",
                         help="""Computes all optimal solutions (default=true).
 Stops at first optimal solution if false.""")
-    parser.add_argument("-v", "--verbose", type=int, choices=[0, 1, 2], default=2,
+    arg_parser.add_argument("-v", "--verbose", type=int, choices=[0, 1, 2], default=2,
                         help="""Specify output verbose level (default=2):
     0 - compact format
     1 - json format
     2 - human-readable format""")
-    parser.add_argument("-d", "--debug", action="store_true", help="Enable debug mode.")
+    arg_parser.add_argument("-d", "--debug", action="store_true", help="Enable debug mode.")
 
-    args = parser.parse_args()
+    args = arg_parser.parse_args()
 
     # Apply arguments to config and network
     network.input_file_network = args.model
@@ -74,7 +75,7 @@ Stops at first optimal solution if false.""")
     
     obs_args = args.observations
     if len(obs_args) % 2 != 0:
-        parser.error("Expected an even number of arguments for -obs (pairs of obs_file and updater_name)")
+        arg_parser.error("Expected an even number of arguments for -obs (pairs of obs_file and updater_name)")
 
     # Load updaters dynamically from updaters/ directory
     updaters = {}
@@ -98,16 +99,22 @@ Stops at first optimal solution if false.""")
         updater_name = obs_args[i+1]
 
         try:
-            network.add_observation_file(obs_path)
             if updater_name not in updaters:
                 raise Exception(f"Updater '{updater_name}' not found in updaters directory")
-            network.add_updater(updaters[updater_name])
+            
+            updater = updaters[updater_name]
+            obs_parser = get_observation_parser(obs_path)
+            observation = obs_parser.read(obs_path, updater)
+            
+            network.add_observation(observation)
+            network.add_updater(updater)
+            
             if updater_name == 'steadystateupdater':
                 network.has_ss_obs = True
             else:
                 network.has_ts_obs = True
         except Exception as e:
-            parser.error(str(e))
+            arg_parser.error(str(e))
 
 def main():
     network = Network()

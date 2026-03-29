@@ -70,6 +70,33 @@ options:
 ```
 
 
+---
+
+### Observation Formats
+
+Experimental observations can be provided in `.lp` (ASP facts), `.csv`, `.xls`, or `.xlsx` formats.
+
+#### Excel (or CSV) Formats
+The tool automatically detects steady-state vs. time-series formats based on the header structure:
+
+- **Steady-state**: The header has one empty first field. The first column contains profile names, followed by node values.
+  ```csv
+  ,node1,node2,node3
+  p1,0,1,0
+  p2,1,1,1
+  ```
+- **Time-series**: The header has two empty first fields. The first column contains profile names, the second column contains time steps, followed by node values.
+  ```csv
+  ,,node1,node2,node3
+  p1,0,0,1,1
+  p1,1,1,1,0
+  p1,2,*,0,0
+  ```
+  > [!TIP]
+  > Missing values (empty fields, `*`, `N/A`, `NaN`, `-`) are automatically skipped, ensuring no inconsistent constraints are generated for those variables at those time points.
+
+---
+
 #### Example: check consistency
 
 Using option `-t c`, `pymodrev` will report the minimal set of nodes that need to be repaired in order to make the model consistent with the given observations.

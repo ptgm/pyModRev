@@ -86,8 +86,8 @@ class Updater(ABC):
             # Generate ASP facts from the internal Network representation
             asp_facts = network.to_asp_facts()
             ctl.add("base", [], asp_facts)
-            for obs_file in network.observation_files:
-                ctl.load(obs_file)
+            for obs in network.observations:
+                ctl.add("base", [], obs.to_asp_facts())
             ctl.ground([('base', [])])
             with ctl.solve(yield_=True) as handle:
                 if handle.get().satisfiable:

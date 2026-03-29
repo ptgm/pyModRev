@@ -25,8 +25,7 @@ class Network:
         self._graph = {}  # {'node_id_1': [edge_1_2, edge_1_3], 'node_id_2': [edge_2_1], ...}
         self._regulators = {}  # Reverse of graph {'node_id_1': ['node_id_2'], 'node_id_2': ['node_id_1'], 'node_id_3': ['node_id_1'], ...}
         self._input_file_network = ''
-        self._observation_files = []  # ['examples/boolean_cell_cycle/obs/ts/async/a_o3_t20.lp', 'examples/boolean_cell_cycle/obs/ss/attractors.lp']
-        self._observation_files_with_updater = []  # [('examples/fissionYeastDavidich2008/obs/ts/ssync/s_o1_t5.lp', <sync_updater.SyncUpdater object at 0x10c7bea90>)]
+        self._observations = []  # List[Observation]
         self._updaters_name = set()
         self._updaters = set()
         self._has_ss_obs = False
@@ -57,14 +56,19 @@ class Network:
         self._input_file_network = value
 
     @property
-    def observation_files(self) -> List:
-        """Returns the list of observation files."""
-        return self._observation_files
+    def observation_files(self) -> List[str]:
+        """Returns the list of observation file paths."""
+        return [obs.observation_path for obs in self._observations]
+
+    @property
+    def observations(self) -> List:
+        """Returns the list of Observation objects."""
+        return self._observations
 
     @property
     def observation_files_with_updater(self) -> List:
-        """Returns the list of observation files with their updaters."""
-        return self._observation_files_with_updater
+        """Returns the list of observation files with their updaters (for compatibility)."""
+        return [(obs.observation_path, obs.updater) for obs in self._observations]
 
     @property
     def updaters_name(self) -> Set:
@@ -159,17 +163,29 @@ class Network:
         except ValueError:
             print(f"No edge exists between {start_node.identifier} and {end_node.identifier}")
 
+    def add_observation(self, observation) -> None:
+        """
+        Adds an Observation object to the network.
+        """
+        self._observations.append(observation)
+
     def add_observation_file(self, observation_file: str) -> None:
         """
         Adds an observation file to the network.
+        deprecated: use add_observation instead.
         """
-        self.observation_files.append(observation_file)
+        # This is kept for backward compatibility but won't have an updater associated
+        # unless added via add_observation_file_with_updater
+        from pymodrev.network.observation import Observation
+        self.add_observation(Observation(observation_file, None))
 
     def add_observation_file_with_updater(self, observation_file: str, updater) -> None:
         """
         Adds an observation file and respective updater to the network.
+        deprecated: use add_observation instead.
         """
-        self.observation_files_with_updater.append((observation_file, updater))
+        from pymodrev.network.observation import Observation
+        self.add_observation(Observation(observation_file, updater))
 
     def to_asp_facts(self) -> str:
         """

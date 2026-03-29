@@ -9,23 +9,53 @@ import os
 from pymodrev.updaters.updater import Updater
 
 
+from typing import List, Tuple, Set, Optional
+
+
 class Observation:
     """
     Represents an observation for the network model, including the file path
-    of the observation data and the updater (as specified via the command line)
+    of the observation data and the updater (as specified via the command line).
+    It stores the internal structure of observations and can generate ASP facts.
     """
 
     def __init__(self, observation_path: str, updater: Updater):
         """
         Initializes an Observation instance.
         """
-        if not os.path.exists(observation_path):
-            raise FileNotFoundError(f"Observation file not found: {observation_path}")
         self.observation_path = observation_path
         self.updater = updater
+        self.experiments: Set[str] = set()
+        # Data format: (experiment_id, time, node_id, value)
+        # where time is None for steady-state observations
+        self.data: List[Tuple[str, Optional[int], str, int]] = []
+
+    def add_data(self, exp_id: str, time: Optional[int], node_id: str, value: int):
+        """
+        Adds an observation data point.
+        """
+        self.experiments.add(exp_id)
+        self.data.append((exp_id, time, node_id, value))
+
+    def to_asp_facts(self) -> str:
+        """
+        Generates ASP facts from the internal observation data.
+        """
+        facts = []
+        for exp_id in sorted(list(self.experiments)):
+            facts.append(f"exp({exp_id}).")
+        
+        for exp_id, time, node_id, value in self.data:
+            if time is None:
+                facts.append(f"obs_vlabel({exp_id},{node_id},{value}).")
+            else:
+                facts.append(f"obs_vlabel({exp_id},{time},{node_id},{value}).")
+        
+        return "\n".join(facts) + "\n"
 
     def __str__(self):
-        return f"Observation(path='{self.observation_path}', updater='{self.updater}')"
+        return f"Observation(path='{self.observation_path}', updater='{self.updater}', n_points={len(self.data)})"
 
     def __repr__(self):
-        return f"Observation(observation_path={self.observation_path!r}, updater={self.updater!r})"
+        return (f"Observation(observation_path={self.observation_path!r}, "
+                f"updater={self.updater!r}, n_points={len(self.data)})")
