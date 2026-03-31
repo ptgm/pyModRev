@@ -1,6 +1,7 @@
 import logging
 from pymodrev.network.network import Network
 from pymodrev.parsers.network_parser import NetworkParser
+from pymodrev.parsers.asp_utils import asp_quote
 
 logger = logging.getLogger(__name__)
 
@@ -200,16 +201,16 @@ class ASPParser(NetworkParser):
 
         # Emit vertex and fixed facts
         for node_id, node in network.nodes.items():
-            facts.append(f"vertex({node_id}).")
+            facts.append(f"vertex({asp_quote(node_id)}).")
             if node.is_fixed:
-                facts.append(f"fixed({node_id}).")
+                facts.append(f"fixed({asp_quote(node_id)}).")
 
         # Emit edge facts
         for node_id, edge_list in network.graph.items():
             for edge in edge_list:
                 facts.append(
-                    f"edge({edge.start_node.identifier},"
-                    f"{edge.end_node.identifier},{edge.sign})."
+                    f"edge({asp_quote(edge.start_node.identifier)},"
+                    f"{asp_quote(edge.end_node.identifier)},{edge.sign})."
                 )
 
         # Emit function facts (functionOr and functionAnd)
@@ -217,10 +218,10 @@ class ASPParser(NetworkParser):
             func = node.function
             if func.regulators_by_term:
                 for term_id, regulators in func.regulators_by_term.items():
-                    facts.append(f"functionOr({node_id},{term_id}).")
+                    facts.append(f"functionOr({asp_quote(node_id)},{term_id}).")
                     for reg in regulators:
                         facts.append(
-                            f"functionAnd({node_id},{term_id},{reg})."
+                            f"functionAnd({asp_quote(node_id)},{term_id},{asp_quote(reg)})."
                         )
 
         return "\n".join(facts) + "\n" if facts else ""

@@ -7,6 +7,7 @@ performs a basic check to ensure the provided observation file exists.
 
 import os
 from pymodrev.updaters.updater import Updater
+from pymodrev.parsers.asp_utils import asp_quote
 
 
 from typing import List, Tuple, Set, Optional
@@ -43,13 +44,13 @@ class Observation:
         """
         facts = []
         for exp_id in sorted(list(self.experiments)):
-            facts.append(f"exp({exp_id}).")
+            facts.append(f"exp({asp_quote(exp_id)}).")
         
         for exp_id, time, node_id, value in self.data:
             if time is None:
-                facts.append(f"obs_vlabel({exp_id},{node_id},{value}).")
+                facts.append(f"obs_vlabel({asp_quote(exp_id)},{asp_quote(node_id)},{value}).")
             else:
-                facts.append(f"obs_vlabel({exp_id},{time},{node_id},{value}).")
+                facts.append(f"obs_vlabel({asp_quote(exp_id)},{time},{asp_quote(node_id)},{value}).")
         
         return "\n".join(facts) + "\n"
 

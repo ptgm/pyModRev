@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## v0.x - Apr 2026
+
+### Changed
+- Variable names are quoted for ASP compliance.
+
 ## v0.2 - Mar 2026
 
 ### Added

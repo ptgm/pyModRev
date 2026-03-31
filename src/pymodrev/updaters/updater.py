@@ -14,6 +14,7 @@ from pymodrev.network.network import Network
 from pymodrev.network.function import Function
 from pymodrev.network.inconsistency_solution import InconsistencySolution
 from pymodrev.configuration import config
+from pymodrev.parsers.asp_utils import asp_unquote
 
 class Updater(ABC):
     """
@@ -115,38 +116,44 @@ class Updater(ABC):
             args = atom.arguments
             if name == 'vlabel':
                 if len(args) > 3:
-                    inconsistency.add_v_label(str(args[0]), str(args[2]),
+                    inconsistency.add_v_label(asp_unquote(str(args[0])),
+                                              asp_unquote(str(args[2])),
                                               int(str(args[3])),
                                               int(str(args[1])))
                 else:
-                    inconsistency.add_v_label(str(args[0]), str(args[1]),
+                    inconsistency.add_v_label(asp_unquote(str(args[0])),
+                                              asp_unquote(str(args[1])),
                                               int(str(args[2])), 0)
                 continue
             if name == 'r_gen':
-                inconsistency.add_generalization(str(args[0]))
+                inconsistency.add_generalization(asp_unquote(str(args[0])))
                 continue
             if name == 'r_part':
-                inconsistency.add_particularization(str(args[0]))
+                inconsistency.add_particularization(asp_unquote(str(args[0])))
                 continue
             if name == 'repair':
                 count += 1
                 continue
             if name == 'update':
-                inconsistency.add_update(int(str(args[1])), str(args[0]),
-                                         str(args[2]))
+                inconsistency.add_update(int(str(args[1])),
+                                         asp_unquote(str(args[0])),
+                                         asp_unquote(str(args[2])))
                 continue
             if name == 'topologicalerror':
-                inconsistency.add_topological_error(str(args[0]))
+                inconsistency.add_topological_error(asp_unquote(str(args[0])))
                 continue
             if name == 'inc':
-                inconsistency.add_inconsistent_profile(str(args[0]),
-                                                       str(args[1]))
+                inconsistency.add_inconsistent_profile(
+                    asp_unquote(str(args[0])),
+                    asp_unquote(str(args[1])))
                 continue
             if name == 'incT':
-                inconsistency.add_inconsistent_profile(str(args[0]),
-                                                       str(args[2]))
-                inconsistency.add_inconsistent_profile(str(args[1]),
-                                                       str(args[2]))
+                inconsistency.add_inconsistent_profile(
+                    asp_unquote(str(args[0])),
+                    asp_unquote(str(args[2])))
+                inconsistency.add_inconsistent_profile(
+                    asp_unquote(str(args[1])),
+                    asp_unquote(str(args[2])))
                 continue
         return inconsistency, count
 

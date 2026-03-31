@@ -13,7 +13,7 @@ jobs:
     # Required for trusted publishing to PyPI
     permissions:
       id-token: write
-      contents: read
+      contents: write # Elevated from 'read' to allow Release creation
 
     steps:
     - name: Checkout Code
@@ -34,3 +34,12 @@ jobs:
 
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        # This will include the .tar.gz and .whl files in the GitHub Release assets
+        files: dist/*
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
