@@ -49,9 +49,9 @@ Example: -obs obs1.lp asyncupdater obs2.lp syncupdater""")
                         help="Force exhaustive search of function repair operations (default=false).")
     arg_parser.add_argument("--sub-opt", action="store_true",
                         help="Show sub-optimal solutions found (default=false).")
-    arg_parser.add_argument("--all-opt", action="store_true",
-                        help="""Computes all optimal solutions (default=true).
-Stops at first optimal solution if false.""")
+    arg_parser.add_argument("--single-sol", action="store_true",
+                        help="""Stops at first optimal solution,
+instead of computing all optimal solutions (default=false).""")
     arg_parser.add_argument("-f", "--format", type=str, choices=['c', 'j', 'h'], default='h',
                         help="""Specify output format (default=h):
     c - compact format

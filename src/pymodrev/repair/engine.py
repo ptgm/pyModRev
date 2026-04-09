@@ -48,8 +48,7 @@ def model_revision(
                     or inconsistency.compare_repairs(best_solution) > 0:
                 best_solution = inconsistency
                 logger.debug(f"Found a solution with {best_solution.n_topology_changes} topology changes")
-                if best_solution.n_topology_changes == 0 and not \
-                        config.all_opt:
+                if best_solution.n_topology_changes == 0 and config.single_sol:
                     break
         else:
             logger.debug("Reached an impossibility")
@@ -59,7 +58,7 @@ def model_revision(
         return
     
     show_sub_opt = config.show_solution_for_each_inconsistency
-    if config.all_opt:
+    if not config.single_sol:
         for inconsistency in f_inconsistencies:
             logger.debug(f"Checking for printing solution with {inconsistency.n_topology_changes} topology changes")
             if not inconsistency.has_impossibility \

@@ -65,8 +65,8 @@ class Configuration:
     update: UpdateType = UpdateType.ASYNC  # Setting the update type to ASYNC
     debug: bool = False
     check_asp: bool = True  # Use ASP consistency check program
-    function_asp: bool = True  # Use ASP function program
-    all_opt: bool = True  # Show one or more solutions
+    function_asp: bool = True # Use ASP function program
+    single_sol: bool = False  # Show one or all optimal solutions
     labelling: bool = False
     multiple_profiles: bool = True
     compare_level_function: bool = True
