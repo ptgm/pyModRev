@@ -52,11 +52,11 @@ Example: -obs obs1.lp asyncupdater obs2.lp syncupdater""")
     arg_parser.add_argument("--all-opt", action="store_true",
                         help="""Computes all optimal solutions (default=true).
 Stops at first optimal solution if false.""")
-    arg_parser.add_argument("-v", "--verbose", type=int, choices=[0, 1, 2], default=2,
-                        help="""Specify output verbose level (default=2):
-    0 - compact format
-    1 - json format
-    2 - human-readable format""")
+    arg_parser.add_argument("-f", "--format", type=str, choices=['c', 'j', 'h'], default='h',
+                        help="""Specify output format (default=h):
+    c - compact format
+    j - json format
+    h - human-readable format""")
     arg_parser.add_argument("-d", "--debug", action="store_true", help="Enable debug mode.")
 
     args = arg_parser.parse_args()
@@ -66,7 +66,7 @@ Stops at first optimal solution if false.""")
     config.task = args.task
     config.force_optimum = args.exhaustive_search
     config.show_solution_for_each_inconsistency = args.sub_opt
-    config.verbose = args.verbose
+    config.format = args.format
     config.debug = args.debug
 
     # Activate debug mode

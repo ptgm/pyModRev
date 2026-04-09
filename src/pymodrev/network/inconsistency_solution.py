@@ -251,11 +251,11 @@ class InconsistencySolution:
 
     def print_solution(self, network=None) -> None:
         """
-        Prints the solution based on the specified verbosity level.
+        Prints the solution based on the specified format.
         """
-        if config.verbose == 0:
+        if config.format == 'c':
             self.print_compact_v0_solution(network=network)
-        elif config.verbose == 1:
+        elif config.format == 'j':
             self.print_json_v1_solution(network=network)
         else:
             self.print_human_v2_solution(network=network)
@@ -392,17 +392,17 @@ class InconsistencySolution:
     def print_inconsistency(self) -> str:
         """
         Returns the inconsistency details for the solution,
-        based on the specified verbosity level (compact/json/human-readable).
+        based on the specified format (compact/json/human-readable).
         """
         result = ""
-        if config.verbose == 0:
-            # compact mode
+        if config.format == 'c':
+            # compact format
             result += 'N[' + ",".join([f'{i_node.identifier.replace(chr(34), "")}' \
                     for i_node in self.inconsistent_nodes.values()]) + ']'
             result += ';P[' + ",".join([f'{i_profile.replace(chr(34), "")}' \
                 for i_profile in self.inconsistent_profiles]) + ']'
-        elif config.verbose == 1:
-            # json mode
+        elif config.format == 'j':
+            # json format
             result += '"nodes": [' + \
                 ",".join([f'"{i_node.identifier.replace(chr(34), "")}"' \
                 for i_node in self.inconsistent_nodes.values()]) + '], ' + \
@@ -410,7 +410,7 @@ class InconsistencySolution:
                 ",".join([f'"{i_profile.replace(chr(34), "")}"' \
                 for i_profile in self.inconsistent_profiles]) + ']'
         else:
-            # human mode
+            # human-readable format
             result += '  node(s) needing repair: ' + \
                 ", ".join([f'"{i_node.identifier.replace(chr(34), "")}"' \
                     for i_node in self.inconsistent_nodes.values()]) + '\n'

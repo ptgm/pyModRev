@@ -61,7 +61,7 @@ class Configuration:
     name: str = 'pyModRev'
     version: str = _package_version
     task: str = 'r' # default is show the repairs
-    verbose: int = 2 # default is human-readable format
+    format: str = 'h' # default is human-readable format
     update: UpdateType = UpdateType.ASYNC  # Setting the update type to ASYNC
     debug: bool = False
     check_asp: bool = True  # Use ASP consistency check program

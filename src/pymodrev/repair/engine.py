@@ -67,7 +67,7 @@ def model_revision(
                          or show_sub_opt):
                 if show_sub_opt and config.task != 'm' \
                         and inconsistency.compare_repairs(best_solution) < 0:
-                    if config.verbose < 2:
+                    if config.format != 'h':
                         print("+", end="")
                     else:
                         print("(Sub-Optimal Solution)")
@@ -87,15 +87,15 @@ def print_consistency(
         inconsistencies: List[InconsistencySolution],
         optimization: int) -> None:
     """
-    Print the consistency status of the network in three verbose levels: 
+    Print the consistency status of the network in three formats: 
     compact, json and human-readable.
     """
     if optimization == 0:
-        # compact level
-        if config.verbose == 0: print('Consistent!')
-        # json level
-        elif config.verbose == 1: print('{"consistent": true}')
-        # human-readable level
+        # compact format
+        if config.format == 'c': print('Consistent!')
+        # json format
+        elif config.format == 'j': print('{"consistent": true}')
+        # human-readable format
         else: print("This network is consistent!")
         return
 
@@ -105,19 +105,19 @@ def print_consistency(
     # . inconsistent nodes
     # . inconsistent profiles
     unique_inconsistencies = set(inconsistencies)
-    if config.verbose == 0:
-        # compact level
+    if config.format == 'c':
+        # compact format
         print('Inconsistent!')
         for inconsistency in unique_inconsistencies:
             print(" " + inconsistency.print_inconsistency())
-    elif config.verbose == 1:
-        # json level
+    elif config.format == 'j':
+        # json format
         print('{\n  "consistent": false,')
         print('  "inconsistencies": [')
         for inconsistency in unique_inconsistencies:
             print("    {" + inconsistency.print_inconsistency() + "},")
         print("  ]\n}")
-    # else, human-readable level
+    # else, human-readable format
     else:
         print("This network is inconsistent!")
         for inconsistency in unique_inconsistencies:
