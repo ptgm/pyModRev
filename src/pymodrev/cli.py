@@ -65,7 +65,7 @@ instead of computing all optimal solutions (default=false).""")
     network.input_file_network = args.model
     config.task = args.task
     config.force_optimum = args.exhaustive_search
-    config.show_solution_for_each_inconsistency = args.sub_opt
+    config.sub_opt = args.sub_opt
     config.format = args.format
     config.debug = args.debug
 
@@ -139,18 +139,18 @@ def main():
         sys.exit(0)
 
     # Model revision
-    repairs2apply = model_revision(network, f_inconsistencies, optimization)
+    repairs_sols = model_revision(network, f_inconsistencies, optimization)
     if config.task == 'm':
         import copy
         import itertools
-        
+
         # 1. Collect all possible model combinations (Cartesian product of repair sets per solution)
         all_models_to_save = []
-        for repair_sol in repairs2apply:
+        for sol in repairs_sols:
             nodes_with_repairs = []
             # Sort node IDs for deterministic output order
-            for node_id in sorted(repair_sol.inconsistent_nodes.keys()):
-                i_node = repair_sol.inconsistent_nodes[node_id]
+            for node_id in sorted(sol.inconsistent_nodes.keys()):
+                i_node = sol.inconsistent_nodes[node_id]
                 if i_node.repair_sets:
                     node_options = [(node_id, rs) for rs in i_node.repair_sets]
                     nodes_with_repairs.append(node_options)
@@ -158,7 +158,7 @@ def main():
             # Cartesian product of options across all nodes for THIS solution
             for combination in itertools.product(*nodes_with_repairs):
                 node_repair_map = dict(combination)
-                all_models_to_save.append((repair_sol, node_repair_map))
+                all_models_to_save.append((sol, node_repair_map))
 
         # 2. Apply repairs and write files
         total_models = len(all_models_to_save)

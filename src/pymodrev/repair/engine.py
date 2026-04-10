@@ -38,7 +38,7 @@ def model_revision(
     # At this point we have an inconsistent network with node candidates
     # to be repaired
     best_solution = None
-    solutions2apply = set()
+    solutions2apply = []
     for inconsistency in f_inconsistencies:
         repair_inconsistencies(network, inconsistency)
 
@@ -57,14 +57,13 @@ def model_revision(
         logger.info("It was not possible to repair the model.")
         return
     
-    show_sub_opt = config.show_solution_for_each_inconsistency
     if not config.single_sol:
         for inconsistency in f_inconsistencies:
             logger.debug(f"Checking for printing solution with {inconsistency.n_topology_changes} topology changes")
             if not inconsistency.has_impossibility \
                     and (inconsistency.compare_repairs(best_solution) >= 0
-                         or show_sub_opt):
-                if show_sub_opt and config.task != 'm' \
+                         or config.sub_opt):
+                if config.sub_opt and config.task != 'm' \
                         and inconsistency.compare_repairs(best_solution) < 0:
                     if config.format != 'h':
                         print("+", end="")
@@ -73,13 +72,12 @@ def model_revision(
                 if config.task == 'r':
                     inconsistency.print_solution(network=network)
                 else:
-                    solutions2apply.add(inconsistency)
+                    solutions2apply.append(inconsistency)
     else:
         if config.task == 'r':
             best_solution.print_solution(network=network)
         else:
-            solutions2apply.add(best_solution)
-
+            solutions2apply.append(best_solution)
     return solutions2apply
 
 def print_consistency(

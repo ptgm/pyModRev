@@ -59,8 +59,8 @@ options:
                            m - get repaired models
   --exhaustive-search   Force exhaustive search of function repair operations (default=false).
   --sub-opt             Show sub-optimal solutions found (default=false).
-  --all-opt             Computes all optimal solutions (default=true).
-                        Stops at first optimal solution if false.
+  --single-sol          Stops at first optimal solution,
+                        instead of computing all optimal solutions (default=false).
   -v, --verbose {0,1,2}
                         Specify output verbose level (default=2):
                             0 - compact format
