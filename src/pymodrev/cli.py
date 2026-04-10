@@ -172,7 +172,7 @@ def main():
                 apply_repair(newNetwork, repair_sol, node_repair_map)
                 filename = f"{prefix}_{str(i+1).zfill(padding)}{ext}"
                 parser.write(newNetwork, filename)
-                print(f"Generated repaired model: {filename}")
+                print(f"Repaired model: {filename}")
 
 if __name__ == '__main__':
     main()

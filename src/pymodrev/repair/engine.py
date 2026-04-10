@@ -84,7 +84,7 @@ def print_consistency(
         inconsistencies: List[InconsistencySolution],
         optimization: int) -> None:
     """
-    Print the consistency status of the network in three formats: 
+    Print the consistency of the model in three formats: 
     compact, json and human-readable.
     """
     if optimization == 0:
@@ -93,10 +93,10 @@ def print_consistency(
         # json format
         elif config.format == 'j': print('{"consistent": true}')
         # human-readable format
-        else: print("This network is consistent!")
+        else: print("This model is consistent!")
         return
 
-    # else, the network is inconsistent
+    # else, the model is inconsistent
     # Not really printing all the inconsistency solutions
     # Only the unique inconsistency solutions with respect to:
     # . inconsistent nodes
@@ -116,6 +116,6 @@ def print_consistency(
         print("  ]\n}")
     # else, human-readable format
     else:
-        print("This network is inconsistent!")
+        print("This model is inconsistent!")
         for inconsistency in unique_inconsistencies:
             print(inconsistency.print_inconsistency())
