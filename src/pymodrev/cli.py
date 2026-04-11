@@ -35,11 +35,12 @@ def process_arguments(network: Network) -> None:
 
     arg_parser.add_argument("-m", "--model",
                         required=True, help="Input model file.")
-    arg_parser.add_argument("-obs", "--observations", nargs='+',
+    arg_parser.add_argument("-obs", "--observations", nargs='+', action='extend',
                         required=True, metavar=('OBS', 'UPDATER'),
                         help="""List of observation files and updater pairs.
 Each observation must be followed by its updater type. 
-Example: -obs obs1.lp asyncupdater obs2.lp syncupdater""")
+Example: -obs obs1.lp asyncupdater obs2.lp syncupdater
+Or: -obs obs1.lp asyncupdater -obs obs2.lp syncupdater""")
     arg_parser.add_argument('-t', '--task', choices=['c', 'r', 'm'], required=True,
                         help="""Specify the task to perform (default=r):
     c - check for consistency
