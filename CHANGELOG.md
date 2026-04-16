@@ -4,10 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## v0.x - Apr 2026
+## [Unreleased]
+
+### Added
+- Granular solution output modes, providing clearer labeling for optimal and sub-optimal repairs.
 
 ### Changed
-- Variable names are quoted for ASP compliance.
+- Unified solution selection logic under a single `--sol` argument (replacing internal `--single-sol` and `--sub-opt` flags).
+- Updated README and documentation to reflect the new command-line interface.
+
+## v0.3.0 - 2026-04-11
+
+### Changed
+- Variable names are now quoted in generated logic programs for ASP compliance.
+- Replaced the `-v`/`--verbose` flag with the more specific `-f`/`--format` implementation.
+- Refined internal configuration names and progress output terminology for consistency.
+
+### Fixed
+- Fixed a bug where providing multiple observation-updater pairs would only process the last one.
 
 ## v0.2 - Mar 2026
 

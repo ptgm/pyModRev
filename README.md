@@ -1,8 +1,8 @@
-## pymodrev: A python Model Revision tool for Boolean logical models
+## pyModRev: A python Model Revision tool for Boolean logical models
 
-**pymodrev** is a Python-based reimplementation of [ModRev](https://github.com/FilipeGouveia/ModRev), a tool for automated **consistency checking** and **repair** of Boolean network models using **Answer Set Programming (ASP)**. Given a Boolean model and a set of experimental observations (steady-state or time-series), pymodrev determines whether the model explains the data. If inconsistencies are found, it identifies **minimal repair operations** to fix the model.
+**pyModRev** is a Python-based reimplementation of [ModRev](https://github.com/FilipeGouveia/ModRev), a tool for automated **consistency checking** and **repair** of Boolean network models using **Answer Set Programming (ASP)**. Given a Boolean model and a set of experimental observations (steady-state or time-series), pyModRev determines whether the model explains the data. If inconsistencies are found, it identifies **minimal repair operations** to fix the model.
 
-Built on top of the [Clingo](https://potassco.org/clingo/) ASP solver and the [`pyfunctionhood`](https://github.com/ptgm/pyfunctionhood) library, pymodrev brings modern usability and extensibility to the model revision process by offering:
+Built on top of the [Clingo](https://potassco.org/clingo/) ASP solver and the [`pyfunctionhood`](https://github.com/ptgm/pyfunctionhood) library, pyModRev brings modern usability and extensibility to the model revision process by offering:
 
 * ✅ **Full parity with [ModRev](https://filipegouveia.github.io/ModRev/)'s core logic**, using the same ASP encodings
 * ✅ **Modular architecture** with pluggable update policies (synchronous, asynchronous, complete, steady-state)
@@ -11,9 +11,30 @@ Built on top of the [Clingo](https://potassco.org/clingo/) ASP solver and the [`
 * ✅ **Command-line interface** for batch processing and reproducibility
 
 ---
+### Minimal repairs and Optimal solutions
+
+Minimal repairs follow a specific order of operations:
+1. Repair functions
+2. Flip the sign of the edges
+3. Add or remove edges
+Meaning that a repair operation of type 1 is preferred over a repair operation of type 2, which is preferred over a repair operation of type 3.
+
+This has two main motivations:
+1. Any change of type 2 and 3 also implies a change of type 1 (a new function search).
+2. Modelers are more confident in the topology of the network than in the regulatory functions.
+
+Since **pyModRev** first relies on ASP for consistency checking:
+- First, it identifies the minimal set of nodes that need repair.
+- Second, it tries to repair the functions of these nodes, following the order of repair operations.
+
+A solution is:
+- **optimal** if it minimizes both the number of nodes needing repair and the number of repair operations.
+- **sub-optimal** if it minimizes the number of nodes needing repair, but not the number of repair operations.
+
+---
 ### Install
 
-You can install **pymodrev** directly from source or via PyPI.
+You can install **pyModRev** directly from source or via PyPI.
 
 To install from source (when you are inside the pymodrev directory):
 ```bash
@@ -37,7 +58,7 @@ Boolean models can be specified using the following formats:
 * `.bnet` - using the BoolNet format (only boolean rules)
 * `.ginml` / `.zginml` - using the widely used GINsim format (conserving the model layout information)
 
-To run **pymodrev**, use the following command structure:
+To run **pyModRev**, use the following command structure:
 
 ```bash
 $ pymodrev -h
