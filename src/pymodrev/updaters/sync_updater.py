@@ -22,6 +22,15 @@ class SyncUpdater(TimeSeriesUpdater):
     """
 
     @staticmethod
+    def get_type() -> str:
+        """
+        This method to return the update type
+        (e.g., sync, async, etc.).
+        """
+        return "sync"
+
+
+    @staticmethod
     def add_specific_rules(ctl: clingo.Control) -> None:
         """
         This method loads a configuration-defined rule set into the control

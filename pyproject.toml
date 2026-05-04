@@ -7,7 +7,7 @@ name = "pymodrev"
 dynamic = ["version"]
 description = "Model Revision tool for computing Boolean network repair operations."
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 license = {text = "MIT"}
 authors = [
     {name = "Pedro T. Monteiro", email = "Pedro.Tiago.Monteiro@tecnico.ulisboa.pt"}

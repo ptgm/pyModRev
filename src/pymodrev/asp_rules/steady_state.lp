@@ -1,5 +1,5 @@
 %guarantee of stable state observation
-ss(P) :- exp(P), not time(P,_).
+ss(P) :- exp(P), not time(P,_), not exp(P,not_ss).
 
 %generate
 1{vlabel(P,V,S):sign(S)}1 :- vertex(V), ss(P).
@@ -17,10 +17,6 @@ noneNegative(P,V,Id) :- onePositive(P,V,Id), not oneNegative(P,V,Id).
 
 vlabel(P,V,1) :- 1{noneNegative(P,V,Id):functionOr(V,Id)}, vertex(V), ss(P), not r_part(V).
 vlabel(P,V,0) :- {noneNegative(P,V,Id):functionOr(V,Id)}0, vertex(V), ss(P), functionOr(V,_), not r_gen(V).
-
-#minimize {1,V : repair(V)}.
-#minimize {1,g,V : r_gen(V)}.
-#minimize {1,p,V : r_part(V)}.
 
 #show vlabel/3.
 

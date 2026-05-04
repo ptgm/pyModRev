@@ -21,10 +21,6 @@ input(V) :- not functionOr(V,_), vertex(V).
 vlabel(P,T+1,V,0) :- input(V), vlabel(P,T,V,0), exp(P), time(P,T+1), not r_gen(V).
 vlabel(P,T+1,V,1) :- input(V), vlabel(P,T,V,1), exp(P), time(P,T+1), not r_part(V).
 
-
-#minimize {1@1,V : repair(V)}.
-#minimize {1@1,g,V : r_gen(V)}.
-#minimize {1@1,p,V : r_part(V)}.
 #show vlabel/4.
 
 % show inconsistent nodes per exeperiment

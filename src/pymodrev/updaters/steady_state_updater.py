@@ -21,6 +21,15 @@ class SteadyStateUpdater(Updater):
     """
 
     @staticmethod
+    def get_type() -> str:
+        """
+        This method to return the update type
+        (e.g., sync, async, etc.).
+        """
+        return "ss"
+
+
+    @staticmethod
     def apply_update_rules(ctl: clingo.Control, updater) -> None:
         """
         This method loads configuration-defined rules into the control object

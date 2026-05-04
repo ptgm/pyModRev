@@ -27,6 +27,14 @@ class Updater(ABC):
 
     @staticmethod
     @abstractmethod
+    def get_type() -> str:
+        """
+        Subclasses must implement this method to return the update type
+        (e.g., sync, async, etc.).
+        """
+
+    @staticmethod
+    @abstractmethod
     def apply_update_rules(ctl: clingo.Control, updater) -> None:
         """
         Subclasses must implement this method to apply update rules based on

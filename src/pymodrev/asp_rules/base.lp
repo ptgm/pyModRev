@@ -12,6 +12,11 @@ vertex(V) :- edge(_,V,_).
 repair(V) :- r_gen(V).
 repair(V) :- r_part(V).
 
+%optimization directives
+#minimize {1@1,V : repair(V)}.
+#minimize {1@1,g,V : r_gen(V)}.
+#minimize {1@1,p,V : r_part(V)}.
+
 #show repair/1.
 #show r_gen/1.
 #show r_part/1.
